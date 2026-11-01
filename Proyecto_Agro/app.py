@@ -100,8 +100,8 @@ st.markdown(f"""
     .logos-container {{ display: flex; justify-content: center; align-items: center; gap: 40px; margin-top: 15px; padding-top: 20px; border-top: 1px solid #E2E8F0; }}
     .logo-item {{ filter: grayscale(100%); opacity: 0.5; transition: all 0.3s ease; object-fit: contain; }}
     .logo-item:hover {{ filter: grayscale(0%); opacity: 1; }}
-    .logo-sniim {{ height: 22px; }} /* SNIIM más pequeño para no robar atención */
-    .logo-fira {{ height: 38px; }} /* FIRA y SIAP más grandes */
+    .logo-sniim {{ height: 22px; }}
+    .logo-fira {{ height: 38px; }}
     .logo-siap {{ height: 38px; }}
     .logo-nasa {{ font-family: 'Inter', sans-serif; font-weight: 800; color: #64748B; font-size: 1.1rem; letter-spacing: 0.5px; opacity: 0.6; cursor: default; }}
     .logo-nasa:hover {{ color: #0F172A; opacity: 1; }}
@@ -110,7 +110,6 @@ st.markdown(f"""
     .fira-card a {{ color: #3B82F6; font-weight: 600; text-decoration: none; display: block; margin-top: 10px; font-size: 0.9rem; }}
     .fira-card a:hover {{ text-decoration: underline; color: #2563EB; }}
     
-    /* Estilizar las métricas para borrar el diseño base aburrido */
     div[data-testid="metric-container"] {{ background-color: #FFFFFF; padding: 1rem 1.5rem; border-radius: 12px; border: 1px solid #E2E8F0; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }}
     div[data-testid="metric-container"] label {{ font-family: 'Inter', sans-serif !important; font-weight: 600 !important; color: #64748B !important; font-size: 0.95rem !important; }}
     </style>
@@ -262,7 +261,6 @@ if st.session_state.df_maestro is not None:
     df_pred = pd.DataFrame(res).sort_values('ROI', ascending=False)
     best = df_pred.iloc[0]
     
-    # Tarjetas limpias, sin emojis, tipografía ejecutiva
     c1, c2, c3 = st.columns(3)
     with c1: st.metric("Ventana Óptima de Siembra", best['Fecha'], f"ROI Proyectado: {best['ROI']:.1f}%")
     with c2: st.metric("Precio Promedio Esperado", f"${best['Precio']:.2f} / {perfil['unidad']}", f"Costo FIRA: ${costo_usuario:.2f}")
