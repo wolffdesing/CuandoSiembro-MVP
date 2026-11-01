@@ -6,7 +6,6 @@ from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
-from webdriver_manager.chrome import ChromeDriverManager
 import pandas as pd
 import time
 import random
@@ -55,18 +54,15 @@ def extraer_precios_historicos(cultivo="Tomate Saladette - Primera", anios_histo
     chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)")
     chrome_options.add_argument("--window-size=1920,1080")
     
-    # MODO HEADLESS: Oculta la ventana de Chrome
+    # MODO HEADLESS Y CONFIGURACIÓN PARA SERVIDOR LINUX
     chrome_options.add_argument("--headless=new") 
     chrome_options.add_argument("--log-level=3") 
-    
-    # --- LÍNEAS DE SEGURIDAD PARA SERVIDORES EN LA NUBE (LINUX) ---
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--disable-gpu")
     chrome_options.binary_location = "/usr/bin/chromium"
-driver = webdriver.Chrome(service=Service("/usr/bin/chromedriver"), options=chrome_options)
     
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+    driver = webdriver.Chrome(service=Service("/usr/bin/chromedriver"), options=chrome_options)
     espera = WebDriverWait(driver, 40) 
     
     try:
