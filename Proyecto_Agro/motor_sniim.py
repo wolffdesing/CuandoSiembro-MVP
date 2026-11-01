@@ -63,6 +63,8 @@ def extraer_precios_historicos(cultivo="Tomate Saladette - Primera", anios_histo
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--disable-gpu")
+    chrome_options.binary_location = "/usr/bin/chromium"
+driver = webdriver.Chrome(service=Service("/usr/bin/chromedriver"), options=chrome_options)
     
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
     espera = WebDriverWait(driver, 40) 
