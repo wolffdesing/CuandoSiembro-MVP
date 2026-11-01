@@ -59,9 +59,14 @@ def dia_a_fecha(dia_anio):
     meses = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
     return f"{fecha_generica.day} de {meses[fecha_generica.month - 1]}"
 
-def get_image_base64(path):
-    if os.path.exists(path):
-        with open(path, "rb") as image_file: return f"data:image/png;base64,{base64.b64encode(image_file.read()).decode()}"
+def get_image_base64(filename):
+    # Esta línea detecta automáticamente la carpeta donde está guardado app.py
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    filepath = os.path.join(base_dir, filename)
+
+    if os.path.exists(filepath):
+        with open(filepath, "rb") as image_file: 
+            return f"data:image/png;base64,{base64.b64encode(image_file.read()).decode()}"
     return ""
 
 # --- CONFIGURACIÓN UI ---
