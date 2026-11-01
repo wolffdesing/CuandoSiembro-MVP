@@ -1,0 +1,241 @@
+import streamlit as st
+import pandas as pd
+import numpy as np
+import re
+from datetime import datetime, timedelta
+import base64
+import os
+import plotly.express as px
+
+# --- IMPORTACIÓN DE MOTORES EXTERNOS ---
+# Aquí conectamos los scripts que desarrollamos en la Fase 1 y Fase 2
+try:
+    from motor_clima import extraer_clima_historico
+    from motor_sniim import extraer_precios_historicos
+except ImportError:
+    st.error("Error Crítico: No se encontraron los archivos 'motor_clima.py' y 'motor_sniim.py' en la misma carpeta.")
+
+# --- FUNCIONES AUXILIARES ---
+def dia_a_fecha(dia_anio):
+    fecha_generica = datetime(2024, 1, 1) + timedelta(days=int(dia_anio) - 1)
+    meses = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
+    return f"{fecha_generica.day} de {meses[fecha_generica.month - 1]}"
+
+def get_image_base64(path):
+    if os.path.exists(path):
+        with open(path, "rb") as image_file:
+            encoded_string = base64.b64encode(image_file.read()).decode()
+        return f"data:image/png;base64,{encoded_string}"
+    return ""
+
+# --- 1. CONFIGURACIÓN DE PÁGINA Y CSS PREMIUM ---
+st.set_page_config(page_title="Cuando Siembro | Inteligencia Agrícola", page_icon="🌱", layout="wide", initial_sidebar_state="expanded")
+
+# Cargar imágenes locales
+logo_principal = get_image_base64("logo_principal.png") 
+logo_sniim = get_image_base64("image_ae35e8.png")
+logo_fira = get_image_base64("image_ae3663.png")
+logo_siap = get_image_base64("image_ae39aa.png")
+img_dron = get_image_base64("dron.jpg")
+img_agricultor = get_image_base64("agricultor.jpg")
+
+st.markdown(f"""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Open+Sans:wght@400;600&display=swap');
+    
+    html, body, [class*="css"] {{ font-family: 'Open Sans', sans-serif; background-color: #F8F9FA !important; color: #4A5568 !important; }}
+    h1, h2, h3, h4, h5, h6 {{ font-family: 'Inter', sans-serif !important; color: #1b3b22 !important; font-weight: 800 !important; }}
+
+    /* HEADER */
+    .header-container {{ display: flex; justify-content: space-between; align-items: center; padding: 5px 30px; background-color: #FFFFFF; border-bottom: 1px solid #E2E8F0; margin: -3rem -3rem 1.5rem -3rem; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }}
+    .logo-main {{ height: 75px; object-fit: contain; }} 
+    .nav-links a {{ color: #4A5568; text-decoration: none; margin-right: 25px; font-weight: 600; font-family: 'Inter', sans-serif; }}
+    .btn-login {{ padding: 6px 16px; border: 2px solid #1b3b22; border-radius: 6px; color: #1b3b22 !important; font-weight: bold; text-decoration: none; transition: 0.3s; font-size: 0.95rem; }}
+    .btn-login:hover {{ background-color: #1b3b22; color: white !important; }}
+
+    /* HERO SECTION */
+    .hero-wrapper {{ position: relative; display: flex; justify-content: center; align-items: center; height: 300px; margin-bottom: 1.5rem; overflow: hidden; border-radius: 20px; background-color: #E2E8F0; }}
+    .hero-bg-left {{ position: absolute; left: 0; top: 0; width: 35%; height: 100%; object-fit: cover; border-radius: 0 50% 50% 0 / 0 30% 70% 0; z-index: 1; }}
+    .hero-bg-right {{ position: absolute; right: 0; top: 0; width: 35%; height: 100%; object-fit: cover; border-radius: 50% 0 0 50% / 30% 0 0 70%; z-index: 1; }}
+    .hero-text-card {{ position: relative; z-index: 2; background-color: rgba(255, 255, 255, 0.95); padding: 1.5rem 2rem; border-radius: 15px; max-width: 60%; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.1); }}
+    .hero-title {{ font-size: 2.2rem !important; margin-bottom: 0.6rem; line-height: 1.2; }}
+    .hero-subtitle {{ font-size: 1.05rem; color: #4A5568; margin-bottom: 0; font-weight: 400; line-height: 1.4; }}
+
+    /* BOTONES Y MÉTRICAS */
+    div.stButton > button:first-child {{ background-color: #C18E3B !important; color: white !important; font-family: 'Inter', sans-serif !important; font-weight: 600 !important; font-size: 1rem !important; padding: 0.6rem 1.5rem !important; border-radius: 8px !important; border: none !important; width: 100%; transition: all 0.3s ease; }}
+    div.stButton > button:first-child:hover {{ background-color: #A67830 !important; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(193, 142, 59, 0.3); }}
+    .logos-container {{ display: flex; justify-content: center; align-items: center; gap: 35px; margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0; }}
+    .footer-logo {{ height: 40px; object-fit: contain; filter: grayscale(100%); opacity: 0.7; transition: all 0.3s ease; }}
+    .footer-logo:hover {{ filter: grayscale(0%); opacity: 1; }}
+    .stMetric {{ background-color: #ffffff; padding: 15px; border-radius: 12px; border-left: 5px solid #1b3b22; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }}
+    
+    /* FIRA CARD */
+    .fira-card {{ background-color: #F0F4F8; padding: 15px; border-radius: 8px; border-left: 4px solid #0033A0; margin-bottom: 15px; }}
+    .fira-card a {{ color: #0033A0; font-weight: bold; text-decoration: none; display: block; margin-top: 10px; }}
+    .fira-card a:hover {{ text-decoration: underline; }}
+    </style>
+""", unsafe_allow_html=True)
+
+# --- 2. HEADER Y HERO SECTION ---
+if logo_principal:
+    st.markdown(f"""
+        <div class="header-container">
+            <div><img src="{logo_principal}" class="logo-main" alt="Cuando Siembro"></div>
+            <div class="nav-links"><a href="#">Soporte</a><a href="#" class="btn-login">Iniciar Sesión</a></div>
+        </div>
+    """, unsafe_allow_html=True)
+
+dron_html = f'<img src="{img_dron}" class="hero-bg-left">' if img_dron else ''
+agricultor_html = f'<img src="{img_agricultor}" class="hero-bg-right">' if img_agricultor else ''
+
+st.markdown(f"""
+    <div class='hero-wrapper'>
+        {dron_html} {agricultor_html}
+        <div class='hero-text-card'>
+            <h1 class='hero-title'>¿Cuándo sembrar para obtener un mejor precio?</h1>
+            <p class='hero-subtitle'>Comparamos el mercado en tiempo real con el clima de tu región para calcular tu ventana de siembra más rentable de los últimos 3 años.</p>
+        </div>
+    </div>
+""", unsafe_allow_html=True)
+
+# --- 3. BARRA LATERAL (COSTOS FIRA) ---
+st.sidebar.markdown("### 🏦 Módulo de Costos (FIRA)")
+st.sidebar.markdown("""
+    <div class="fira-card">
+        <small>Los costos de producción cambian según la región. Consulta el Paquete Tecnológico oficial y digita tu costo por kilo:</small>
+        <a href="https://www.fira.gob.mx/Nd/PaquetesTecnologicos.jsp" target="_blank">↗ Abrir Portal FIRA</a>
+    </div>
+""", unsafe_allow_html=True)
+
+costo_fira_usuario = st.sidebar.number_input("Costo de Producción (MXN/kg)", min_value=1.0, max_value=100.0, value=7.80, step=0.5)
+
+st.sidebar.markdown("### ⚙️ Parámetros del Productor")
+area_ha = st.sidebar.number_input("Superficie (Hectáreas)", value=1.0, step=0.5)
+rendimiento_ton_ha = st.sidebar.number_input("Rendimiento Esperado (Ton/Ha)", value=80)
+dias_veg = st.sidebar.number_input("Días de Desarrollo", value=90)
+dias_cos = st.sidebar.number_input("Días de Cosecha", value=40)
+
+inversion_total = area_ha * rendimiento_ton_ha * 1000 * costo_fira_usuario
+
+# --- 4. CONFIGURACIÓN DEL CULTIVO ---
+st.markdown("### Configuración de la Simulación")
+col_busq1, col_busq2, col_busq3, col_busq4 = st.columns([2, 2, 2, 2])
+with col_busq1:
+    cultivo_seleccionado = st.selectbox("1. ¿Qué cultivo?", ["Tomate Saladette", "Girasol amarillo híbrido", "Lechuga Fernandola"], index=0)
+with col_busq2:
+    ubicacion = st.selectbox("2. ¿Dónde estás?", ["Tehuacán, Puebla", "Ajalpan, Puebla", "Tecamachalco, Puebla"], index=0)
+with col_busq3:
+    meta_mercado = st.selectbox("3. Horizonte de Análisis", ["3 Años (Recomendado)", "1 Año", "5 Años"])
+    anios_historia = int(meta_mercado.split()[0]) # Extrae el número de años seleccionados
+with col_busq4:
+    st.markdown("<br>", unsafe_allow_html=True)
+    ejecutar_btn = st.button("OBTENER DATOS Y CALCULAR")
+
+st.markdown(f"""
+    <div class='logos-container'>
+        <span style='color: #718096; font-size: 0.9em;'>Con tecnología e información oficial de:</span>
+        <img src='{logo_sniim}' class='footer-logo' alt='SNIIM'>
+        <img src='{logo_fira}' class='footer-logo' alt='FIRA'>
+        <img src='{logo_siap}' class='footer-logo' alt='SIAP'>
+        <span style='font-family: Inter; font-weight: 800; color: #4A5568; font-size: 1.2rem; opacity: 0.7;'>NASA POWER</span>
+    </div>
+""", unsafe_allow_html=True)
+st.markdown("---")
+
+# --- 5. MOTOR DE RECOLECCIÓN Y ORÁCULO ---
+if 'df_maestro' not in st.session_state:
+    st.session_state.df_maestro = None
+
+if ejecutar_btn:
+    st.markdown("### 🤖 Auto-Recolector de Datos Iniciado")
+    
+    with st.status("Conectando con servidores gubernamentales y satélites...", expanded=True) as status:
+        # 1. Clima (NASA)
+        st.write("🛰️ Descargando histórico climático de NASA POWER...")
+        res_clima = extraer_clima_historico(localidad=ubicacion, anios_historia=anios_historia)
+        
+        if res_clima["status"] == "success":
+            st.write(f"✅ {res_clima['mensaje']}")
+            df_clima = pd.read_csv(res_clima["archivo"])
+            df_clima['Fecha'] = pd.to_datetime(df_clima['Fecha'])
+        else:
+            st.error(res_clima["mensaje"])
+            st.stop()
+            
+        # 2. Mercado (SNIIM)
+        st.write("🛒 Consultando precios diarios en la Central de Abastos...")
+        res_sniim = extraer_precios_historicos(cultivo=cultivo_seleccionado, anios_historia=anios_historia)
+        
+        if res_sniim["status"] == "success":
+            st.write(f"✅ {res_sniim['mensaje']}")
+            df_precios_raw = pd.read_csv(res_sniim["archivo"])
+            
+            # Limpieza básica para cruce
+            df_precios = pd.DataFrame()
+            # Asumiendo que la columna 0 es Fecha, 1 es Presentacion y 5 es Precio (Formato SNIIM)
+            df_precios['Fecha'] = pd.to_datetime(df_precios_raw.iloc[:, 0], dayfirst=True, errors='coerce')
+            df_precios['Presentacion'] = df_precios_raw.iloc[:, 1].astype(str)
+            df_precios['Precio_Caja'] = pd.to_numeric(df_precios_raw.iloc[:, 5], errors='coerce')
+            df_precios = df_precios.dropna(subset=['Fecha', 'Precio_Caja'])
+            
+            # Función compacta de extracción de kilos
+            def ext_kg(txt):
+                if 'kilogramo' in str(txt).lower() or str(txt).lower() == 'kg': return 1.0
+                nums = re.findall(r'\d+', str(txt))
+                return float(nums[-1]) if nums else 14.0
+                
+            df_precios['Kilos'] = df_precios['Presentacion'].apply(ext_kg)
+            df_precios['Precio_Base'] = (df_precios['Precio_Caja'] / df_precios['Kilos']).round(2)
+        else:
+            st.error(res_sniim["mensaje"])
+            st.stop()
+            
+        # 3. Cruce de Datos
+        st.write("🧠 Sincronizando clima con precios...")
+        fecha_min = df_precios['Fecha'].min()
+        fecha_max = df_clima['Fecha'].max()
+        df_maestro = pd.merge(df_clima[(df_clima['Fecha'] >= fecha_min) & (df_clima['Fecha'] <= fecha_max)], df_precios[['Fecha', 'Precio_Base']], on='Fecha', how='left')
+        df_maestro = df_maestro.sort_values('Fecha').reset_index(drop=True)
+        df_maestro['Precio_Base'] = df_maestro['Precio_Base'].ffill().bfill()
+        
+        st.session_state.df_maestro = df_maestro
+        status.update(label="¡Extracción completada! Calculando rentabilidad...", state="complete", expanded=False)
+
+# --- 6. RENDERIZADO DEL ORÁCULO ---
+if st.session_state.df_maestro is not None:
+    df_maestro = st.session_state.df_maestro.copy()
+    
+    st.markdown("## 🔮 Oráculo de Rentabilidad")
+    st.markdown(f"Proyección estacional calculada usando un costo base de **${costo_fira_usuario} MXN/kg** (Según validación FIRA).")
+    
+    df_maestro['Dia_Anio'] = df_maestro['Fecha'].dt.dayofyear
+    perfil_anual = df_maestro.groupby('Dia_Anio').agg({'Precio_Base': 'mean', 'Temp_Max_C': 'mean', 'Temp_Min_C': 'mean'}).reset_index()
+    perfil_extendido = pd.concat([perfil_anual, perfil_anual]).reset_index(drop=True)
+    
+    res = []
+    for dia_inicio in range(365):
+        mercado_cos = perfil_extendido.iloc[dia_inicio + dias_veg : dia_inicio + dias_veg + dias_cos]
+        clima_veg = perfil_extendido.iloc[dia_inicio : dia_inicio + dias_veg]
+        precio_esp = mercado_cos['Precio_Base'].mean()
+        ingreso_esp = area_ha * rendimiento_ton_ha * 1000 * precio_esp
+        roi_esp = ((ingreso_esp - inversion_total) / inversion_total) * 100 if inversion_total > 0 else 0
+        riesgo_frio = len(clima_veg[clima_veg['Temp_Min_C'] < 12.0])
+        res.append({'Dia': dia_inicio + 1, 'Fecha': dia_a_fecha(dia_inicio + 1), 'ROI': roi_esp, 'Precio': precio_esp, 'Frio': riesgo_frio})
+    
+    df_pred = pd.DataFrame(res).sort_values('ROI', ascending=False)
+    best = df_pred.iloc[0]
+    
+    c1, c2, c3 = st.columns(3)
+    with c1: st.metric("🥇 Ventana Óptima de Siembra", best['Fecha'], f"ROI Proyectado: {best['ROI']:.1f}%")
+    with c2: st.metric("💰 Precio Promedio Esperado", f"${best['Precio']:.2f} / kg", f"Meta Rentabilidad: >${costo_fira_usuario:.2f}")
+    with c3: st.metric("🌡️ Riesgo Agroclimático", f"{best['Frio']} Días", "Días con frío crítico (<12°C)", delta_color="inverse")
+    
+    st.markdown("### 📈 Curva Estacional de Retorno de Inversión (ROI %)")
+    df_graf = df_pred.sort_values('Dia').copy()
+    df_graf['Fecha_Plot'] = pd.to_datetime('2024-01-01') + pd.to_timedelta(df_graf['Dia'] - 1, unit='D')
+    
+    fig = px.line(df_graf, x='Fecha_Plot', y='ROI', labels={'Fecha_Plot': 'Día de Trasplante', 'ROI': 'ROI Proyectado (%)'}, hover_data={'Fecha_Plot': '|%d de %b'})
+    fig.update_traces(line_color='#1b3b22', line_width=3)
+    fig.add_hline(y=0, line_dash="dash", line_color="#F44336", annotation_text="Punto de Equilibrio (0%)")
+    fig.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', xaxis=dict(showgrid=True, gridcolor='#E2E8F0', tickformat='%d %b'), yaxis=dict(showgrid=True, gridcolor='#E2E8F0'), hovermode="x unified", margin=dict(l=0, r=0, t=30, b=0))
+    st.plotly_chart(fig, use_container_width=True)
