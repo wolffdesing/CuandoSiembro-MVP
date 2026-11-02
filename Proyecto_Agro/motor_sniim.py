@@ -1,9 +1,19 @@
 import pandas as pd
-import requests
 import io
+import re
 import time
+import random
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
+
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import Select
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.action_chains import ActionChains
 
 # EL TOP 20 MVP: Cultivos de alto valor comercial y demanda
 CATALOGO_SNIIM = {
@@ -30,66 +40,99 @@ CATALOGO_SNIIM = {
 }
 
 def extraer_precios_historicos(cultivo="Tomate Saladette - Primera", anios_historia=3):
-    print(f"[{datetime.now().strftime('%H:%M:%S')}] Iniciando conexión directa al SNIIM para: {cultivo}...")
+    print(f"[{datetime.now().strftime('%H:%M:%S')}] Iniciando motor de mercado (SNIIM) para: {cultivo}...")
 
     id_producto = CATALOGO_SNIIM.get(cultivo, "839")
+
     fecha_fin_dt = datetime.now()
     fecha_inicio_dt = fecha_fin_dt - relativedelta(years=anios_historia)
-    
     fecha_inicio = fecha_inicio_dt.strftime('%d/%m/%Y')
     fecha_fin = fecha_fin_dt.strftime('%d/%m/%Y')
     
-    # URL directa con los parámetros de búsqueda inyectados
-    url_directa = (
-        f"http://www.economia-sniim.gob.mx/Consultas/MercadosNacionales/PreciosDeMercado/Agricolas/"
-        f"ResultadosConsultaFechaFrutasYHortalizas.aspx?"
-        f"fechaInicio={fecha_inicio}&fechaFinal={fecha_fin}&ProductoId={id_producto}&"
-        f"OrigenId=-1&Origen=Todos&DestinoId=210&Destino=Puebla&PreciosPorId=1&RegistrosPorPagina=5000"
-    )
+    chrome_options = Options()
+    chrome_options.add_argument("--headless=new")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--window-size=1920,1080")
+    chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
     
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
-    }
+    # --- SISTEMA DE DOBLE CEREBRO (NUBE vs LOCAL) ---
+    try:
+        # Intento 1: Servidor Nube (Linux Debian en Streamlit Cloud)
+        chrome_options.binary_location = "/usr/bin/chromium"
+        servicio = Service("/usr/bin/chromedriver")
+        driver = webdriver.Chrome(service=servicio, options=chrome_options)
+    except Exception:
+        # Intento 2: Computadora Local (Windows de Adolfo)
+        print("Entorno Linux no detectado. Iniciando motor de Windows...")
+        from webdriver_manager.chrome import ChromeDriverManager
+        chrome_options.binary_location = "" # Limpiamos la ruta de Linux
+        driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+        
+    espera = WebDriverWait(driver, 40) 
     
-    intentos_maximos = 3
-    session = requests.Session()
-    
-    for intento in range(intentos_maximos):
+    try:
+        driver.get("http://www.economia-sniim.gob.mx/nuevo/Home.aspx?opcion=Consultas/MercadosNacionales/PreciosDeMercado/Agricolas/ConsultaFrutasYHortalizas.aspx?SubOpcion=4|0") 
+        time.sleep(random.uniform(3.0, 4.0))
+        
+        driver.switch_to.frame("ifraHome")
+        Select(espera.until(EC.presence_of_element_located((By.ID, "ddlProducto")))).select_by_value(id_producto)
+        time.sleep(random.uniform(1.0, 2.0))
+        
+        Select(driver.find_element(By.ID, "ddlDestino")).select_by_value("210") # Puebla
+        time.sleep(random.uniform(1.0, 2.0))
+        
+        driver.execute_script(f"document.getElementById('txtFechaInicio').value = '{fecha_inicio}';")
+        driver.execute_script(f"document.getElementById('txtFechaFinal').value = '{fecha_fin}';")
+        time.sleep(1.0)
+        
+        driver.find_element(By.ID, "btnBuscar").click()
+        time.sleep(random.uniform(4.0, 5.0))
+        
         try:
-            print(f"Intento {intento + 1} de {intentos_maximos}. Esperando respuesta del SNIIM (puede tardar hasta 120 segundos)...")
+            elemento_paginacion = espera.until(EC.presence_of_element_located((By.XPATH, "//*[contains(text(), 'Página') and contains(text(), 'de')]")))
+            match = re.search(r'de\s+(\d+)', elemento_paginacion.text.strip())
+            total_paginas = int(match.group(1)) if match else 1
+        except:
+            total_paginas = 1
             
-            # El secreto de la paciencia: 15 seg para conectar, 120 seg para descargar los datos lentos del SNIIM
-            respuesta = session.get(url_directa, headers=headers, timeout=(15, 120))
-            respuesta.raise_for_status()
-            
-            # Pandas lee el HTML buscando las tablas de datos
-            tablas = pd.read_html(io.StringIO(respuesta.text))
-            df_final = None
-            
-            for df in tablas:
-                cols = [str(c).lower() for c in df.columns]
-                if 'fecha' in cols and 'presentación' in cols:
-                    df_final = df
-                    break
-                    
-            if df_final is None and len(tablas) > 0:
-                df_final = max(tablas, key=len)
+        todos_los_datos = []
+        
+        for pagina_actual in range(1, total_paginas + 1):
+            try:
+                tabla_elemento = espera.until(EC.presence_of_element_located((By.ID, "tblResultados")))
+                df_temp = pd.read_html(io.StringIO(tabla_elemento.get_attribute('outerHTML')))[0]
+                todos_los_datos.append(df_temp)
+                
+                if pagina_actual < total_paginas:
+                    btn_siguiente = driver.find_elements(By.ID, "ibtnSiguiente")
+                    if btn_siguiente:
+                        btn = btn_siguiente[0]
+                        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", btn)
+                        time.sleep(1.0)
+                        try:
+                            ActionChains(driver).move_to_element(btn).click().perform()
+                        except:
+                            btn.click()
+                        
+                        pagina_esperada = pagina_actual + 1
+                        espera.until(lambda d: f"Página {pagina_esperada} de" in d.find_element(By.XPATH, "//*[contains(text(), 'Página') and contains(text(), 'de')]").text)
+                        time.sleep(1.5)
+            except Exception as e:
+                break 
 
-            if df_final is not None and len(df_final) > 5:
-                nombre_limpio = cultivo.replace(" ", "_").replace("-", "").replace("__", "_")
-                nombre_archivo = f"Precios_{nombre_limpio}_Puebla.csv"
-                df_final.to_csv(nombre_archivo, index=False)
-                
-                return {"status": "success", "archivo": nombre_archivo, "mensaje": f"Se obtuvieron {len(df_final)} registros históricos pacientemente."}
-            else:
-                return {"status": "error", "mensaje": "El SNIIM respondió, pero no hay datos de precios para este cultivo en Puebla."}
-                
-        except requests.exceptions.Timeout:
-            print(f"El servidor del SNIIM está demasiado lento. Reintentando en 10 segundos...")
-            time.sleep(10) # Pausa estratégica antes de volver a golpear el servidor
-        except Exception as e:
-            print(f"Error de conexión: {str(e)}. Reintentando en 5 segundos...")
-            time.sleep(5)
+        if todos_los_datos:
+            df_final = pd.concat(todos_los_datos, ignore_index=True)
+            df_final.drop_duplicates(inplace=True) 
             
-    return {"status": "error", "mensaje": "El servidor del gobierno (SNIIM) no respondió después de 3 intentos. Intenta con 1 Año de historial."}
+            nombre_archivo = f"Precios_{cultivo.replace(' ', '_').replace('-', '').replace('__', '_')}_Puebla.csv"
+            df_final.to_csv(nombre_archivo, index=False)
+            return {"status": "success", "archivo": nombre_archivo, "mensaje": f"Se extrajeron {len(df_final)} precios del mercado exitosamente."}
+        else:
+            return {"status": "error", "mensaje": "No se encontraron datos en el SNIIM para este cultivo."}
+            
+    except Exception as e:
+        return {"status": "error", "mensaje": f"Error de conexión: {str(e)}"}
+    finally:
+        driver.quit()
