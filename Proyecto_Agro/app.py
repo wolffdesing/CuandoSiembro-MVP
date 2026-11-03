@@ -80,7 +80,6 @@ st.markdown(f"""
     html, body, [class*="css"] {{ font-family: 'Open Sans', sans-serif; background-color: #F8F9FA !important; color: #1E293B !important; }}
     h1, h2, h3, h4, h5, h6 {{ font-family: 'Inter', sans-serif !important; color: #0F172A !important; font-weight: 800 !important; letter-spacing: -0.5px; }}
 
-    /* --- ESTILOS GENERALES (PC) --- */
     .header-container {{ display: flex; justify-content: space-between; align-items: center; padding: 5px 30px; background-color: #FFFFFF; border-bottom: 1px solid #E2E8F0; margin: -3rem -3rem 1.5rem -3rem; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }}
     .logo-main {{ height: 75px; object-fit: contain; }} 
     .nav-links {{ display: flex; align-items: center; gap: 20px; }}
@@ -112,9 +111,6 @@ st.markdown(f"""
     div[data-testid="metric-container"] {{ background-color: #FFFFFF; padding: 1rem 1.5rem; border-radius: 12px; border: 1px solid #E2E8F0; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }}
     div[data-testid="metric-container"] label {{ font-family: 'Inter', sans-serif !important; font-weight: 600 !important; color: #64748B !important; font-size: 0.95rem !important; }}
 
-    /* =========================================================
-       📱 REGLAS DE RESPONSIVIDAD (SOLO PARA CELULARES)
-       ========================================================= */
     @media (max-width: 768px) {
         .header-container {{ flex-direction: column; padding: 15px; gap: 15px; margin: -3rem -1.5rem 1.5rem -1.5rem; }}
         .logo-main {{ height: 50px; }} 
@@ -210,21 +206,21 @@ if ejecutar_btn:
         nombre_limpio = cultivo_seleccionado.replace(" ", "_").replace("-", "").replace("__", "_")
         nombre_archivo = f"Precios_{nombre_limpio}_Puebla.csv"
         
-        # Rastreador universal robusto (Raíz o subcarpeta)
+        # --- RASTREADOR MULTINIVEL BLINDADO ---
         base_dir = os.path.dirname(os.path.abspath(__file__))
-        ruta_raiz = os.path.join(base_dir, nombre_archivo)
-        ruta_sub = os.path.join(base_dir, "Proyecto_Agro", nombre_archivo)
+        rutas_posibles = [
+            os.path.join(base_dir, nombre_archivo),
+            os.path.join(base_dir, "Proyecto_Agro", nombre_archivo),
+            nombre_archivo
+        ]
         
-        if os.path.exists(nombre_archivo):
-            ruta_csv = nombre_archivo
-        elif os.path.exists(ruta_raiz):
-            ruta_csv = ruta_raiz
-        elif os.path.exists(ruta_sub):
-            ruta_csv = ruta_sub
-        else:
-            ruta_csv = None
-            
-        if ruta_csv and os.path.exists(ruta_csv):
+        ruta_csv = None
+        for r in rutas_posibles:
+            if os.path.exists(r):
+                ruta_csv = r
+                break
+                
+        if ruta_csv:
             df_precios_raw = pd.read_csv(ruta_csv)
             df_precios = pd.DataFrame()
             df_precios['Fecha'] = pd.to_datetime(df_precios_raw.iloc[:, 0], dayfirst=True, errors='coerce')
@@ -333,6 +329,6 @@ if st.session_state.df_maestro is not None:
         fig_clima = make_subplots(specs=[[{"secondary_y": True}]])
         fig_clima.add_trace(go.Bar(x=df_clima_anual['Mes_Dia_Plot'], y=df_clima_anual['Precipitacion_mm'], name='Lluvia (mm)', marker_color='rgba(56, 189, 248, 0.4)', hovertemplate='Lluvia: %{y:.1f} mm<extra></extra>'), secondary_y=True)
         fig_clima.add_trace(go.Scatter(x=df_clima_anual['Mes_Dia_Plot'], y=df_clima_anual['Temp_Max_C'], name='Máxima (°C)', line=dict(color='#F43F5E', width=2.5, shape='spline'), hovertemplate='Máx: %{y:.1f}°C<extra></extra>'), secondary_y=False)
-        fig_clima.add_trace(go.Scatter(x=df_clima_anual['Mes_Dia_Plot'], y=df_clima_anual['Temp_Min_C'], name='Mínima (°C)', line=dict(color='#3B82F6', width=2.5, shape='spline'), fill='tonexty', fillcolor='rgba(244, 63, 94, 0.05)', hovertemplate='Mín: %{y:.1f}°C<extra></extra>'), secondary_y=False)
+        fig_clima.add_trace(go.Scatter(x=df_clima_anual['Mes_Dia_Plot'], y=df_clima_anuna['Temp_Min_C'] if 'Temp_Min_C' in df_clima_anual else df_clima_anual['Temp_Min_C'], name='Mínima (°C)', line=dict(color='#3B82F6', width=2.5, shape='spline'), fill='tonexty', fillcolor='rgba(244, 63, 94, 0.05)', hovertemplate='Mín: %{y:.1f}°C<extra></extra>'), secondary_y=False)
         fig_clima.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', xaxis=dict(showgrid=False, tickformat='%b'), yaxis=dict(title="Temperatura (°C)", showgrid=True, gridcolor='#F1F5F9'), yaxis2=dict(title="Precipitación (mm)", showgrid=False, range=[0, df_clima_anual['Precipitacion_mm'].max() * 3]), legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1), hovermode="x unified", margin=dict(l=0, r=0, t=10, b=0))
         st.plotly_chart(fig_clima, use_container_width=True)
