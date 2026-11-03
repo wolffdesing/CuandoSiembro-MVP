@@ -9,7 +9,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-# --- IMPORTACIÓN DEL MOTOR DE CLIMA (La NASA sí permite conexiones en vivo) ---
+# --- IMPORTACIÓN DEL MOTOR DE CLIMA ---
 try:
     from motor_clima import extraer_clima_historico
 except ImportError:
@@ -115,24 +115,22 @@ st.markdown(f"""
     /* =========================================================
        📱 REGLAS DE RESPONSIVIDAD (SOLO PARA CELULARES)
        ========================================================= */
-    @media (max-width: 768px) {{
-        /* 1. Arreglar el Menú superior */
+    @media (max-width: 768px) {
         .header-container {{ flex-direction: column; padding: 15px; gap: 15px; margin: -3rem -1.5rem 1.5rem -1.5rem; }}
         .logo-main {{ height: 50px; }} 
         .nav-links {{ width: 100%; justify-content: space-evenly; flex-wrap: wrap; }}
         
-        /* 2. Arreglar el colapso del texto en la Tarjeta Principal */
         .hero-wrapper {{ height: auto; padding: 30px 15px; border-radius: 12px; }}
-        .hero-bg-left, .hero-bg-right {{ opacity: 0.15; width: 50%; }} /* Atenuamos imágenes de fondo */
-        .hero-text-card {{ max-width: 100%; padding: 1.5rem 1rem; }} /* Expandimos la tarjeta al 100% */
-        .hero-title {{ font-size: 1.8rem !important; }} /* Reducimos un poco la fuente */
+        .hero-bg-left, .hero-bg-right {{ opacity: 0.15; width: 50%; }}
+        .hero-text-card {{ max-width: 100%; padding: 1.5rem 1rem; }}
+        .hero-title {{ font-size: 1.8rem !important; }}
         .hero-subtitle {{ font-size: 1rem; }}
         
-        /* 3. Arreglar la asfixia de los Logos */
         .logos-container {{ gap: 20px; }}
-    }}
+    }
     </style>
 """, unsafe_allow_html=True)
+
 if logo_principal:
     st.markdown(f"""
         <div class="header-container">
@@ -208,19 +206,25 @@ if ejecutar_btn:
         else:
             st.error(res_clima["mensaje"]); st.stop()
             
-       st.write("🧠 Sincronizando modelo de mercado local ultrarrápido...")
+        st.write("🧠 Sincronizando modelo de mercado local ultrarrápido...")
         nombre_limpio = cultivo_seleccionado.replace(" ", "_").replace("-", "").replace("__", "_")
         nombre_archivo = f"Precios_{nombre_limpio}_Puebla.csv"
         
-        # Rastreador inteligente: Busca el CSV tanto en la raíz de GitHub como en subcarpetas
-        ruta_local = os.path.join(os.path.dirname(os.path.abspath(__file__)), nombre_archivo)
-        ruta_csv = nombre_archivo if os.path.exists(nombre_archivo) else ruta_local
+        # Rastreador universal robusto (Raíz o subcarpeta)
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        ruta_raiz = os.path.join(base_dir, nombre_archivo)
+        ruta_sub = os.path.join(base_dir, "Proyecto_Agro", nombre_archivo)
         
-        if os.path.exists(ruta_csv):
-            df_precios_raw = pd.read_csv(ruta_csv)
-            df_precios = pd.DataFrame()
-        
-        if os.path.exists(ruta_csv):
+        if os.path.exists(nombre_archivo):
+            ruta_csv = nombre_archivo
+        elif os.path.exists(ruta_raiz):
+            ruta_csv = ruta_raiz
+        elif os.path.exists(ruta_sub):
+            ruta_csv = ruta_sub
+        else:
+            ruta_csv = None
+            
+        if ruta_csv and os.path.exists(ruta_csv):
             df_precios_raw = pd.read_csv(ruta_csv)
             df_precios = pd.DataFrame()
             df_precios['Fecha'] = pd.to_datetime(df_precios_raw.iloc[:, 0], dayfirst=True, errors='coerce')
@@ -255,7 +259,7 @@ if ejecutar_btn:
             st.session_state.df_maestro = df_maestro
             status.update(label="¡Análisis completado en tiempo récord!", state="complete", expanded=False)
         else:
-            st.error(f"Falta la base de datos para: {cultivo_seleccionado}. Sincronizando en segundo plano...")
+            st.error(f"Falta la base de datos para: {cultivo_seleccionado}. Archivo buscado: {nombre_archivo}")
             status.update(label="Sincronización requerida", state="error", expanded=False)
             st.stop()
 
