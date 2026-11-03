@@ -80,10 +80,12 @@ st.markdown(f"""
     html, body, [class*="css"] {{ font-family: 'Open Sans', sans-serif; background-color: #F8F9FA !important; color: #1E293B !important; }}
     h1, h2, h3, h4, h5, h6 {{ font-family: 'Inter', sans-serif !important; color: #0F172A !important; font-weight: 800 !important; letter-spacing: -0.5px; }}
 
+    /* --- ESTILOS GENERALES (PC) --- */
     .header-container {{ display: flex; justify-content: space-between; align-items: center; padding: 5px 30px; background-color: #FFFFFF; border-bottom: 1px solid #E2E8F0; margin: -3rem -3rem 1.5rem -3rem; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }}
     .logo-main {{ height: 75px; object-fit: contain; }} 
-    .nav-links a {{ color: #475569; text-decoration: none; margin-right: 25px; font-weight: 600; font-family: 'Inter', sans-serif; }}
-    .btn-login {{ padding: 6px 16px; border: 2px solid #10B981; border-radius: 8px; color: #10B981 !important; font-weight: bold; transition: 0.3s; }}
+    .nav-links {{ display: flex; align-items: center; gap: 20px; }}
+    .nav-links a {{ color: #475569; text-decoration: none; font-weight: 600; font-family: 'Inter', sans-serif; }}
+    .btn-login {{ padding: 6px 16px; border: 2px solid #10B981; border-radius: 8px; color: #10B981 !important; font-weight: bold; transition: 0.3s; white-space: nowrap; }}
     .btn-login:hover {{ background-color: #10B981; color: white !important; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); }}
 
     .hero-wrapper {{ position: relative; display: flex; justify-content: center; align-items: center; height: 300px; margin-bottom: 1.5rem; overflow: hidden; border-radius: 20px; background-color: #E2E8F0; }}
@@ -96,7 +98,7 @@ st.markdown(f"""
     div.stButton > button:first-child {{ background: linear-gradient(135deg, #D97706 0%, #B45309 100%) !important; color: white !important; font-family: 'Inter', sans-serif !important; font-weight: 700 !important; font-size: 1.05rem !important; padding: 0.7rem 1.5rem !important; border-radius: 10px !important; border: none !important; width: 100%; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(217, 119, 6, 0.3); }}
     div.stButton > button:first-child:hover {{ transform: translateY(-2px); box-shadow: 0 8px 25px rgba(217, 119, 6, 0.4); }}
     
-    .logos-container {{ display: flex; justify-content: center; align-items: center; gap: 40px; margin-top: 15px; padding-top: 20px; border-top: 1px solid #E2E8F0; }}
+    .logos-container {{ display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 40px; margin-top: 15px; padding-top: 20px; border-top: 1px solid #E2E8F0; }}
     .logo-item {{ filter: grayscale(100%); opacity: 0.5; transition: all 0.3s ease; object-fit: contain; }}
     .logo-item:hover {{ filter: grayscale(0%); opacity: 1; }}
     .logo-sniim {{ height: 22px; }}
@@ -109,9 +111,28 @@ st.markdown(f"""
     
     div[data-testid="metric-container"] {{ background-color: #FFFFFF; padding: 1rem 1.5rem; border-radius: 12px; border: 1px solid #E2E8F0; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }}
     div[data-testid="metric-container"] label {{ font-family: 'Inter', sans-serif !important; font-weight: 600 !important; color: #64748B !important; font-size: 0.95rem !important; }}
+
+    /* =========================================================
+       📱 REGLAS DE RESPONSIVIDAD (SOLO PARA CELULARES)
+       ========================================================= */
+    @media (max-width: 768px) {{
+        /* 1. Arreglar el Menú superior */
+        .header-container {{ flex-direction: column; padding: 15px; gap: 15px; margin: -3rem -1.5rem 1.5rem -1.5rem; }}
+        .logo-main {{ height: 50px; }} 
+        .nav-links {{ width: 100%; justify-content: space-evenly; flex-wrap: wrap; }}
+        
+        /* 2. Arreglar el colapso del texto en la Tarjeta Principal */
+        .hero-wrapper {{ height: auto; padding: 30px 15px; border-radius: 12px; }}
+        .hero-bg-left, .hero-bg-right {{ opacity: 0.15; width: 50%; }} /* Atenuamos imágenes de fondo */
+        .hero-text-card {{ max-width: 100%; padding: 1.5rem 1rem; }} /* Expandimos la tarjeta al 100% */
+        .hero-title {{ font-size: 1.8rem !important; }} /* Reducimos un poco la fuente */
+        .hero-subtitle {{ font-size: 1rem; }}
+        
+        /* 3. Arreglar la asfixia de los Logos */
+        .logos-container {{ gap: 20px; }}
+    }}
     </style>
 """, unsafe_allow_html=True)
-
 if logo_principal:
     st.markdown(f"""
         <div class="header-container">
