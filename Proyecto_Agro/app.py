@@ -211,7 +211,11 @@ if ejecutar_btn:
             
         st.write("🧠 Sincronizando modelo de mercado local ultrarrápido...")
         nombre_limpio = cultivo_seleccionado.replace(" ", "_").replace("-", "").replace("__", "_")
-        ruta_csv = os.path.join(os.path.dirname(os.path.abspath(__file__)), f"Precios_{nombre_limpio}_Puebla.csv")
+        nombre_archivo = f"Precios_{nombre_limpio}_Puebla.csv"
+        
+        # Rastreador inteligente: Busca el CSV tanto en la raíz de GitHub como en subcarpetas
+        ruta_local = os.path.join(os.path.dirname(os.path.abspath(__file__)), nombre_archivo)
+        ruta_csv = nombre_archivo if os.path.exists(nombre_archivo) else ruta_local
         
         if os.path.exists(ruta_csv):
             df_precios_raw = pd.read_csv(ruta_csv)
