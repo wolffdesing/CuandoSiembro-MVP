@@ -1,0 +1,36 @@
+name: Actualizador de Precios SNIIM
+
+on:
+  schedule:
+    - cron: '0 3 * * 0' # Se ejecuta los domingos a las 3:00 AM UTC
+  workflow_dispatch: # Activa un botón para que lo puedas correr manualmente
+
+permissions:
+  contents: write
+
+jobs:
+  mineria_de_datos:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el repositorio
+        uses: actions/checkout@v4
+
+      - name: Instalar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Instalar librerias para el Bot
+        run: |
+          pip install selenium webdriver-manager pandas lxml html5lib
+
+      - name: Ejecutar Extraccion Masiva SNIIM
+        run: python bot_sniim.py
+
+      - name: Subir los CSVs actualizados a GitHub
+        run: |
+          git config --global user.name 'SNIIM-Data-Bot'
+          git config --global user.email 'bot@cuandosiembro.com'
+          git add *.csv
+          git commit -m "Actualizacion automatica de base de datos SNIIM" || echo "No hay datos nuevos para guardar"
+          git push
