@@ -9,12 +9,11 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-# --- IMPORTACIÓN DE MOTORES ---
+# --- IMPORTACIÓN DEL MOTOR DE CLIMA (La NASA sí permite conexiones en vivo) ---
 try:
     from motor_clima import extraer_clima_historico
-    from motor_sniim import extraer_precios_historicos, CATALOGO_SNIIM
 except ImportError:
-    st.error("Error Crítico: Faltan los archivos 'motor_clima.py' o 'motor_sniim.py'.")
+    st.error("Falta el archivo 'motor_clima.py'.")
 
 # --- BASE DE CONOCIMIENTO (PERFILES AGRONÓMICOS) ---
 PERFILES_AGRONOMICOS = {
@@ -53,23 +52,19 @@ def render_section(icon_key, title):
     return f"""<div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
         {ICONS[icon_key]}<h2 style="margin: 0; font-size: 1.8rem; color: #0F172A;">{title}</h2></div>"""
 
-# --- FUNCIONES AUXILIARES ---
 def dia_a_fecha(dia_anio):
     fecha_generica = datetime(2024, 1, 1) + timedelta(days=int(dia_anio) - 1)
     meses = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
     return f"{fecha_generica.day} de {meses[fecha_generica.month - 1]}"
 
 def get_image_base64(filename):
-    # Esta línea detecta automáticamente la carpeta donde está guardado app.py
     base_dir = os.path.dirname(os.path.abspath(__file__))
     filepath = os.path.join(base_dir, filename)
-
     if os.path.exists(filepath):
         with open(filepath, "rb") as image_file: 
             return f"data:image/png;base64,{base64.b64encode(image_file.read()).decode()}"
     return ""
 
-# --- CONFIGURACIÓN UI ---
 st.set_page_config(page_title="Cuando Siembro | Inteligencia Agrícola", page_icon="🌱", layout="wide", initial_sidebar_state="expanded")
 
 logo_principal = get_image_base64("logo_principal.png") 
@@ -101,7 +96,6 @@ st.markdown(f"""
     div.stButton > button:first-child {{ background: linear-gradient(135deg, #D97706 0%, #B45309 100%) !important; color: white !important; font-family: 'Inter', sans-serif !important; font-weight: 700 !important; font-size: 1.05rem !important; padding: 0.7rem 1.5rem !important; border-radius: 10px !important; border: none !important; width: 100%; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(217, 119, 6, 0.3); }}
     div.stButton > button:first-child:hover {{ transform: translateY(-2px); box-shadow: 0 8px 25px rgba(217, 119, 6, 0.4); }}
     
-    /* --- AJUSTE DE LOGOS (PESOS VISUALES) --- */
     .logos-container {{ display: flex; justify-content: center; align-items: center; gap: 40px; margin-top: 15px; padding-top: 20px; border-top: 1px solid #E2E8F0; }}
     .logo-item {{ filter: grayscale(100%); opacity: 0.5; transition: all 0.3s ease; object-fit: contain; }}
     .logo-item:hover {{ filter: grayscale(0%); opacity: 1; }}
@@ -109,18 +103,15 @@ st.markdown(f"""
     .logo-fira {{ height: 38px; }}
     .logo-siap {{ height: 38px; }}
     .logo-nasa {{ font-family: 'Inter', sans-serif; font-weight: 800; color: #64748B; font-size: 1.1rem; letter-spacing: 0.5px; opacity: 0.6; cursor: default; }}
-    .logo-nasa:hover {{ color: #0F172A; opacity: 1; }}
     
     .fira-card {{ background-color: #F8FAFC; padding: 15px; border-radius: 10px; border-left: 4px solid #3B82F6; margin-bottom: 15px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); }}
     .fira-card a {{ color: #3B82F6; font-weight: 600; text-decoration: none; display: block; margin-top: 10px; font-size: 0.9rem; }}
-    .fira-card a:hover {{ text-decoration: underline; color: #2563EB; }}
     
     div[data-testid="metric-container"] {{ background-color: #FFFFFF; padding: 1rem 1.5rem; border-radius: 12px; border: 1px solid #E2E8F0; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }}
     div[data-testid="metric-container"] label {{ font-family: 'Inter', sans-serif !important; font-weight: 600 !important; color: #64748B !important; font-size: 0.95rem !important; }}
     </style>
 """, unsafe_allow_html=True)
 
-# --- HEADER Y HERO ---
 if logo_principal:
     st.markdown(f"""
         <div class="header-container">
@@ -140,11 +131,10 @@ st.markdown(f"""
     </div>
 """, unsafe_allow_html=True)
 
-# --- SECCIÓN BÚSQUEDA ---
 st.markdown("### Configuración de la Simulación")
 col_busq1, col_busq2, col_busq3, col_busq4 = st.columns([2, 2, 2, 2])
 with col_busq1:
-    opciones_cultivos = list(CATALOGO_SNIIM.keys()) if 'CATALOGO_SNIIM' in globals() else list(PERFILES_AGRONOMICOS.keys())
+    opciones_cultivos = list(PERFILES_AGRONOMICOS.keys())
     indice_defecto = opciones_cultivos.index("Tomate Saladette - Primera") if "Tomate Saladette - Primera" in opciones_cultivos else 0
     cultivo_seleccionado = st.selectbox("1. ¿Qué cultivo?", opciones_cultivos, index=indice_defecto)
 with col_busq2:
@@ -156,10 +146,8 @@ with col_busq4:
     st.markdown("<br>", unsafe_allow_html=True)
     ejecutar_btn = st.button("OBTENER DATOS Y CALCULAR")
 
-# --- LÓGICA DINÁMICA DEL PERFIL AGRONÓMICO ---
 perfil = PERFILES_AGRONOMICOS.get(cultivo_seleccionado, PERFILES_AGRONOMICOS["DEFAULT"])
 
-# --- SIDEBAR DINÁMICO ---
 st.sidebar.markdown("### 🏦 Módulo de Costos (FIRA)")
 st.sidebar.markdown(f"""
     <div class="fira-card">
@@ -169,8 +157,6 @@ st.sidebar.markdown(f"""
 """, unsafe_allow_html=True)
 
 costo_usuario = st.sidebar.number_input(f"Costo de Producción (MXN/{perfil['unidad']})", min_value=0.1, max_value=500.0, value=float(perfil["costo_sugerido"]), step=0.5)
-
-st.sidebar.markdown("### ⚙️ Parámetros del Productor")
 area_ha = st.sidebar.number_input("Superficie (Hectáreas)", min_value=0.1, value=1.0, step=0.5)
 rendimiento = st.sidebar.number_input(perfil["etiqueta_rend"], min_value=1, value=int(perfil["rend_sugerido"]))
 dias_veg = st.sidebar.number_input("Días de Desarrollo", min_value=10, value=int(perfil["veg"]))
@@ -178,7 +164,6 @@ dias_cos = st.sidebar.number_input("Días de Cosecha", min_value=5, value=int(pe
 
 inversion_total = area_ha * rendimiento * perfil["multiplicador"] * costo_usuario
 
-# --- RENDERIZADO DEL BALANCE DE LOGOS ---
 st.markdown(f"""
     <div class='logos-container'>
         <img src='{logo_sniim}' class='logo-item logo-sniim' alt='SNIIM'>
@@ -189,12 +174,11 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 st.markdown("---")
 
-# --- MOTOR DE EXTRACCIÓN Y LIMPIEZA ---
 if 'df_maestro' not in st.session_state:
     st.session_state.df_maestro = None
 
 if ejecutar_btn:
-    with st.status("Conectando con servidores gubernamentales y satélites...", expanded=True) as status:
+    with st.status("Analizando bases de datos espaciales y de mercado...", expanded=True) as status:
         st.write("🛰️ Descargando histórico climático de NASA POWER...")
         res_clima = extraer_clima_historico(localidad=ubicacion, anios_historia=anios_historia)
         if res_clima["status"] == "success":
@@ -203,10 +187,12 @@ if ejecutar_btn:
         else:
             st.error(res_clima["mensaje"]); st.stop()
             
-        st.write("🛒 Consultando precios del SNIIM en modo sigiloso...")
-        res_sniim = extraer_precios_historicos(cultivo=cultivo_seleccionado, anios_historia=anios_historia)
-        if res_sniim["status"] == "success":
-            df_precios_raw = pd.read_csv(res_sniim["archivo"])
+        st.write("🧠 Sincronizando modelo de mercado local ultrarrápido...")
+        nombre_limpio = cultivo_seleccionado.replace(" ", "_").replace("-", "").replace("__", "_")
+        ruta_csv = os.path.join(os.path.dirname(os.path.abspath(__file__)), f"Precios_{nombre_limpio}_Puebla.csv")
+        
+        if os.path.exists(ruta_csv):
+            df_precios_raw = pd.read_csv(ruta_csv)
             df_precios = pd.DataFrame()
             df_precios['Fecha'] = pd.to_datetime(df_precios_raw.iloc[:, 0], dayfirst=True, errors='coerce')
             df_precios['Presentacion'] = df_precios_raw.iloc[:, 1].astype(str)
@@ -231,17 +217,18 @@ if ejecutar_btn:
                     return precio_bruto / 14.0
                     
             df_precios['Precio_Base'] = df_precios.apply(calcular_precio_base, axis=1).round(2)
-        else:
-            st.error(res_sniim["mensaje"]); st.stop()
             
-        st.write("🧠 Sincronizando clima con precios...")
-        fecha_min = df_precios['Fecha'].min()
-        fecha_max = df_clima['Fecha'].max()
-        df_maestro = pd.merge(df_clima[(df_clima['Fecha'] >= fecha_min) & (df_clima['Fecha'] <= fecha_max)], df_precios[['Fecha', 'Precio_Base']], on='Fecha', how='left')
-        df_maestro = df_maestro.sort_values('Fecha').reset_index(drop=True)
-        df_maestro['Precio_Base'] = df_maestro['Precio_Base'].ffill().bfill()
-        st.session_state.df_maestro = df_maestro
-        status.update(label="¡Análisis completado con éxito!", state="complete", expanded=False)
+            fecha_min = df_precios['Fecha'].min()
+            fecha_max = df_clima['Fecha'].max()
+            df_maestro = pd.merge(df_clima[(df_clima['Fecha'] >= fecha_min) & (df_clima['Fecha'] <= fecha_max)], df_precios[['Fecha', 'Precio_Base']], on='Fecha', how='left')
+            df_maestro = df_maestro.sort_values('Fecha').reset_index(drop=True)
+            df_maestro['Precio_Base'] = df_maestro['Precio_Base'].ffill().bfill()
+            st.session_state.df_maestro = df_maestro
+            status.update(label="¡Análisis completado en tiempo récord!", state="complete", expanded=False)
+        else:
+            st.error(f"Falta la base de datos para: {cultivo_seleccionado}. Sincronizando en segundo plano...")
+            status.update(label="Sincronización requerida", state="error", expanded=False)
+            st.stop()
 
 # --- RESULTADOS (UI PREMIUM CON SVGs) ---
 if st.session_state.df_maestro is not None:
