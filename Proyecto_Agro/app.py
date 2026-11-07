@@ -9,7 +9,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-# --- IMPORTACIÓN DEL MOTOR DE CLIMA (La NASA sí permite conexiones en vivo) ---
+# --- IMPORTACIÓN DEL MOTOR DE CLIMA ---
 try:
     from motor_clima import extraer_clima_historico
 except ImportError:
@@ -42,20 +42,24 @@ PERFILES_AGRONOMICOS = {
 
 # --- LIBRERÍA DE ICONOS SVG PRO ---
 ICONS = {
-    "dashboard": '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>',
-    "chart": '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>',
-    "bars": '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect width="4" height="7" x="7" y="14" rx="1"/><rect width="4" height="12" x="15" y="9" rx="1"/></svg>',
-    "cloud": '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>'
+    "dashboard": '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>',
+    "chart": '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>',
+    "bars": '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect width="4" height="7" x="7" y="14" rx="1"/><rect width="4" height="12" x="15" y="9" rx="1"/></svg>',
+    "cloud": '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>'
 }
 
-def render_section(icon_key, title):
-    return f"""<div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
-        {ICONS[icon_key]}<h2 style="margin: 0; font-size: 1.8rem; color: #0F172A;">{title}</h2></div>"""
+def render_section(icon_key, title, subtitle=""):
+    return f"""<div style="margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #E2E8F0;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            {ICONS[icon_key]}<h3 style="margin: 0; font-size: 1.4rem; font-weight: 600; color: #0F172A; letter-spacing: -0.5px;">{title}</h3>
+        </div>
+        <p style="margin: 4px 0 0 38px; font-size: 0.9rem; color: #64748B;">{subtitle}</p>
+    </div>"""
 
 def dia_a_fecha(dia_anio):
     fecha_generica = datetime(2024, 1, 1) + timedelta(days=int(dia_anio) - 1)
     meses = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
-    return f"{fecha_generica.day} de {meses[fecha_generica.month - 1]}"
+    return f"{fecha_generica.day} {meses[fecha_generica.month - 1]}"
 
 def get_image_base64(filename):
     base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -65,7 +69,7 @@ def get_image_base64(filename):
             return f"data:image/png;base64,{base64.b64encode(image_file.read()).decode()}"
     return ""
 
-st.set_page_config(page_title="Cuando Siembro | Inteligencia Agrícola", page_icon="🌱", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(page_title="Cuando Siembro | Terminal", page_icon="📈", layout="wide", initial_sidebar_state="expanded")
 
 logo_principal = get_image_base64("logo_principal.png") 
 logo_sniim = get_image_base64("image_ae35e8.png")
@@ -76,59 +80,53 @@ img_agricultor = get_image_base64("agricultor.jpg")
 
 st.markdown(f"""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Open+Sans:wght@400;600&display=swap');
-    html, body, [class*="css"] {{ font-family: 'Open Sans', sans-serif; background-color: #F8F9FA !important; color: #1E293B !important; }}
-    h1, h2, h3, h4, h5, h6 {{ font-family: 'Inter', sans-serif !important; color: #0F172A !important; font-weight: 800 !important; letter-spacing: -0.5px; }}
-
-    /* --- ESTILOS GENERALES (PC) --- */
-    .header-container {{ display: flex; justify-content: space-between; align-items: center; padding: 5px 30px; background-color: #FFFFFF; border-bottom: 1px solid #E2E8F0; margin: -3rem -3rem 1.5rem -3rem; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }}
-    .logo-main {{ height: 75px; object-fit: contain; }} 
-    .nav-links {{ display: flex; align-items: center; gap: 20px; }}
-    .nav-links a {{ color: #475569; text-decoration: none; font-weight: 600; font-family: 'Inter', sans-serif; }}
-    .btn-login {{ padding: 6px 16px; border: 2px solid #10B981; border-radius: 8px; color: #10B981 !important; font-weight: bold; transition: 0.3s; white-space: nowrap; }}
-    .btn-login:hover {{ background-color: #10B981; color: white !important; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); }}
-
-    .hero-wrapper {{ position: relative; display: flex; justify-content: center; align-items: center; height: 300px; margin-bottom: 1.5rem; overflow: hidden; border-radius: 20px; background-color: #E2E8F0; }}
-    .hero-bg-left {{ position: absolute; left: 0; top: 0; width: 35%; height: 100%; object-fit: cover; border-radius: 0 50% 50% 0 / 0 30% 70% 0; z-index: 1; }}
-    .hero-bg-right {{ position: absolute; right: 0; top: 0; width: 35%; height: 100%; object-fit: cover; border-radius: 50% 0 0 50% / 30% 0 0 70%; z-index: 1; }}
-    .hero-text-card {{ position: relative; z-index: 2; background-color: rgba(255, 255, 255, 0.95); padding: 1.5rem 2.5rem; border-radius: 16px; max-width: 60%; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.08); backdrop-filter: blur(10px); }}
-    .hero-title {{ font-size: 2.3rem !important; margin-bottom: 0.5rem; line-height: 1.2; color: #064E3B !important; }}
-    .hero-subtitle {{ font-size: 1.1rem; color: #475569; margin-bottom: 0; font-weight: 400; line-height: 1.5; }}
-
-    div.stButton > button:first-child {{ background: linear-gradient(135deg, #D97706 0%, #B45309 100%) !important; color: white !important; font-family: 'Inter', sans-serif !important; font-weight: 700 !important; font-size: 1.05rem !important; padding: 0.7rem 1.5rem !important; border-radius: 10px !important; border: none !important; width: 100%; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(217, 119, 6, 0.3); }}
-    div.stButton > button:first-child:hover {{ transform: translateY(-2px); box-shadow: 0 8px 25px rgba(217, 119, 6, 0.4); }}
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     
-    .logos-container {{ display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 40px; margin-top: 15px; padding-top: 20px; border-top: 1px solid #E2E8F0; }}
-    .logo-item {{ filter: grayscale(100%); opacity: 0.5; transition: all 0.3s ease; object-fit: contain; }}
-    .logo-item:hover {{ filter: grayscale(0%); opacity: 1; }}
-    .logo-sniim {{ height: 22px; }}
-    .logo-fira {{ height: 38px; }}
-    .logo-siap {{ height: 38px; }}
-    .logo-nasa {{ font-family: 'Inter', sans-serif; font-weight: 800; color: #64748B; font-size: 1.1rem; letter-spacing: 0.5px; opacity: 0.6; cursor: default; }}
+    /* TIPOGRAFÍA GLOBAL (Estilo TradingView) */
+    html, body, [class*="css"] {{ font-family: 'Inter', sans-serif !important; background-color: #F8FAFC !important; color: #1E293B !important; }}
     
-    .fira-card {{ background-color: #F8FAFC; padding: 15px; border-radius: 10px; border-left: 4px solid #3B82F6; margin-bottom: 15px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); }}
-    .fira-card a {{ color: #3B82F6; font-weight: 600; text-decoration: none; display: block; margin-top: 10px; font-size: 0.9rem; }}
-    
-    div[data-testid="metric-container"] {{ background-color: #FFFFFF; padding: 1rem 1.5rem; border-radius: 12px; border: 1px solid #E2E8F0; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }}
-    div[data-testid="metric-container"] label {{ font-family: 'Inter', sans-serif !important; font-weight: 600 !important; color: #64748B !important; font-size: 0.95rem !important; }}
+    /* MENÚ SUPERIOR */
+    .header-container {{ display: flex; justify-content: space-between; align-items: center; padding: 10px 30px; background-color: #FFFFFF; border-bottom: 1px solid #E2E8F0; margin: -3rem -3rem 1.5rem -3rem; }}
+    .logo-main {{ height: 55px; object-fit: contain; }} 
+    .nav-links {{ display: flex; align-items: center; gap: 24px; }}
+    .nav-links a {{ color: #475569; text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: color 0.2s; }}
+    .nav-links a:hover {{ color: #10B981; }}
+    .btn-login {{ padding: 6px 18px; border: 1px solid #10B981; border-radius: 6px; color: #10B981 !important; font-weight: 600; transition: all 0.2s; }}
+    .btn-login:hover {{ background-color: #10B981; color: white !important; }}
 
-    /* =========================================================
-        📱 REGLAS DE RESPONSIVIDAD (SOLO PARA CELULARES)
-        ========================================================= */
+    /* TARJETA HERO */
+    .hero-wrapper {{ position: relative; display: flex; justify-content: center; align-items: center; height: 220px; margin-bottom: 2rem; overflow: hidden; border-radius: 16px; background: linear-gradient(180deg, #F1F5F9 0%, #E2E8F0 100%); border: 1px solid #CBD5E1; }}
+    .hero-bg-left {{ position: absolute; left: 0; top: 0; width: 40%; height: 100%; object-fit: cover; opacity: 0.3; mask-image: linear-gradient(to right, black, transparent); -webkit-mask-image: linear-gradient(to right, black, transparent); }}
+    .hero-bg-right {{ position: absolute; right: 0; top: 0; width: 40%; height: 100%; object-fit: cover; opacity: 0.3; mask-image: linear-gradient(to left, black, transparent); -webkit-mask-image: linear-gradient(to left, black, transparent); }}
+    .hero-text-card {{ position: relative; z-index: 2; text-align: center; }}
+    .hero-title {{ font-size: 2.2rem !important; font-weight: 700 !important; color: #0F172A !important; margin-bottom: 0.2rem; letter-spacing: -1px; }}
+    .hero-subtitle {{ font-size: 1.05rem; color: #475569; font-weight: 400; }}
+
+    /* CONTROLES DE FORMULARIO ESTILO FINTECH */
+    .stSelectbox label, .stNumberInput label {{ font-size: 0.85rem !important; font-weight: 600 !important; color: #64748B !important; text-transform: uppercase; letter-spacing: 0.5px; }}
+    .stSelectbox > div > div {{ border-radius: 6px !important; border: 1px solid #CBD5E1 !important; background-color: #FFFFFF !important; box-shadow: 0 1px 2px rgba(0,0,0,0.02) !important; }}
+    
+    /* BOTÓN PRINCIPAL */
+    div.stButton > button:first-child {{ background-color: #10B981 !important; color: white !important; font-weight: 600 !important; font-size: 1rem !important; padding: 0.6rem !important; border-radius: 6px !important; border: none !important; width: 100%; box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2); transition: all 0.2s; }}
+    div.stButton > button:first-child:hover {{ transform: translateY(-1px); box-shadow: 0 6px 8px -1px rgba(16, 185, 129, 0.3); }}
+    
+    /* LOGOS FOOTER */
+    .logos-container {{ display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 35px; margin-top: 10px; padding-top: 15px; border-top: 1px solid #E2E8F0; }}
+    .logo-item {{ filter: grayscale(100%); opacity: 0.4; transition: all 0.3s; object-fit: contain; }}
+    .logo-item:hover {{ filter: grayscale(0%); opacity: 0.8; }}
+    .logo-sniim {{ height: 18px; }} .logo-fira {{ height: 28px; }} .logo-siap {{ height: 28px; }}
+    .logo-nasa {{ font-weight: 700; color: #64748B; font-size: 1rem; opacity: 0.5; }}
+    
+    /* TARJETAS DE MÉTRICAS (TICKERS) */
+    div[data-testid="metric-container"] {{ background-color: #FFFFFF; padding: 1.2rem; border-radius: 8px; border: 1px solid #E2E8F0; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }}
+    div[data-testid="metric-container"] label {{ font-weight: 600 !important; color: #64748B !important; font-size: 0.85rem !important; text-transform: uppercase; letter-spacing: 0.5px; }}
+    div[data-testid="metric-container"] div[data-testid="stMetricValue"] {{ font-size: 1.8rem !important; font-weight: 700 !important; color: #0F172A !important; letter-spacing: -0.5px; }}
+    
+    /* RESPONSIVIDAD */
     @media (max-width: 768px) {{
-        /* 1. Arreglar el Menú superior */
-        .header-container {{ flex-direction: column; padding: 15px; gap: 15px; margin: -3rem -1.5rem 1.5rem -1.5rem; }}
-        .logo-main {{ height: 50px; }} 
-        .nav-links {{ width: 100%; justify-content: space-evenly; flex-wrap: wrap; }}
-        
-        /* 2. Arreglar el colapso del texto en la Tarjeta Principal */
-        .hero-wrapper {{ height: auto; padding: 30px 15px; border-radius: 12px; }}
-        .hero-bg-left, .hero-bg-right {{ opacity: 0.15; width: 50%; }} /* Atenuamos imágenes de fondo */
-        .hero-text-card {{ max-width: 100%; padding: 1.5rem 1rem; }} /* Expandimos la tarjeta al 100% */
-        .hero-title {{ font-size: 1.8rem !important; }} /* Reducimos un poco la fuente */
-        .hero-subtitle {{ font-size: 1rem; }}
-        
-        /* 3. Arreglar la asfixia de los Logos */
+        .header-container {{ flex-direction: column; padding: 15px; margin: -3rem -1.5rem 1.5rem -1.5rem; }}
+        .hero-title {{ font-size: 1.6rem !important; }}
+        .hero-wrapper {{ height: auto; padding: 25px 15px; }}
         .logos-container {{ gap: 20px; }}
     }}
     </style>
@@ -138,7 +136,7 @@ if logo_principal:
     st.markdown(f"""
         <div class="header-container">
             <div><img src="{logo_principal}" class="logo-main" alt="Cuando Siembro"></div>
-            <div class="nav-links"><a href="#">Soporte</a><a href="#" class="btn-login">Iniciar Sesión</a></div>
+            <div class="nav-links"><a href="#">Documentación</a><a href="#" class="btn-login">Terminal Pro</a></div>
         </div>
     """, unsafe_allow_html=True)
 
@@ -147,42 +145,36 @@ st.markdown(f"""
         {('<img src="'+img_dron+'" class="hero-bg-left">' if img_dron else '')} 
         {('<img src="'+img_agricultor+'" class="hero-bg-right">' if img_agricultor else '')}
         <div class='hero-text-card'>
-            <h1 class='hero-title'>¿Cuándo sembrar para ganar más?</h1>
-            <p class='hero-subtitle'>Algoritmos predictivos que cruzan precios históricos y clima satelital para encontrar tu ventana de máxima rentabilidad.</p>
+            <h1 class='hero-title'>Terminal de Inteligencia Agrícola</h1>
+            <p class='hero-subtitle'>Backtesting de rentabilidad cruzando datos de mercado (SNIIM) y clima satelital (NASA).</p>
         </div>
     </div>
 """, unsafe_allow_html=True)
 
-st.markdown("### Configuración de la Simulación")
-col_busq1, col_busq2, col_busq3, col_busq4 = st.columns([2, 2, 2, 2])
+col_busq1, col_busq2, col_busq3, col_busq4 = st.columns([2.5, 2, 2, 1.5])
 with col_busq1:
     opciones_cultivos = list(PERFILES_AGRONOMICOS.keys())
     indice_defecto = opciones_cultivos.index("Tomate Saladette - Primera") if "Tomate Saladette - Primera" in opciones_cultivos else 0
-    cultivo_seleccionado = st.selectbox("1. ¿Qué cultivo?", opciones_cultivos, index=indice_defecto)
+    cultivo_seleccionado = st.selectbox("Activo / Cultivo", opciones_cultivos, index=indice_defecto)
 with col_busq2:
-    ubicacion = st.selectbox("2. ¿Dónde estás?", ["Tehuacán, Puebla", "Ajalpan, Puebla", "Tecamachalco, Puebla"], index=0)
+    ubicacion = st.selectbox("Zona Geográfica", ["Tehuacán, Puebla", "Ajalpan, Puebla", "Tecamachalco, Puebla"], index=0)
 with col_busq3:
-    meta_mercado = st.selectbox("3. Horizonte de Análisis", ["3 Años (Recomendado)", "1 Año", "5 Años"])
+    meta_mercado = st.selectbox("Horizonte (Backtesting)", ["3 Años Históricos", "1 Año Histórico", "5 Años Históricos"])
     anios_historia = int(meta_mercado.split()[0])
 with col_busq4:
     st.markdown("<br>", unsafe_allow_html=True)
-    ejecutar_btn = st.button("OBTENER DATOS Y CALCULAR")
+    ejecutar_btn = st.button("EJECUTAR ALGORITMO")
 
 perfil = PERFILES_AGRONOMICOS.get(cultivo_seleccionado, PERFILES_AGRONOMICOS["DEFAULT"])
 
-st.sidebar.markdown("### 🏦 Módulo de Costos (FIRA)")
-st.sidebar.markdown(f"""
-    <div class="fira-card">
-        <small>Los costos y rendimientos cambian según la región. Consulta el Sistema Agrocostos Oficial para validarlo:</small>
-        <a href="https://www.fira.gob.mx/Nd/Agrocostos.jsp" target="_blank">↗ Abrir Portal Agrocostos FIRA</a>
-    </div>
-""", unsafe_allow_html=True)
+st.sidebar.markdown("### ⚙️ Parámetros de Operación")
+st.sidebar.markdown("<p style='font-size:0.85rem; color:#64748B; line-height:1.4;'>Configura tus costos locales para calcular el Punto de Equilibrio.</p>", unsafe_allow_html=True)
 
-costo_usuario = st.sidebar.number_input(f"Costo de Producción (MXN/{perfil['unidad']})", min_value=0.1, max_value=500.0, value=float(perfil["costo_sugerido"]), step=0.5)
-area_ha = st.sidebar.number_input("Superficie (Hectáreas)", min_value=0.1, value=1.0, step=0.5)
+costo_usuario = st.sidebar.number_input(f"Costo Producción (MXN/{perfil['unidad']})", min_value=0.1, max_value=500.0, value=float(perfil["costo_sugerido"]), step=0.5)
+area_ha = st.sidebar.number_input("Superficie Operativa (Ha)", min_value=0.1, value=1.0, step=0.5)
 rendimiento = st.sidebar.number_input(perfil["etiqueta_rend"], min_value=1, value=int(perfil["rend_sugerido"]))
-dias_veg = st.sidebar.number_input("Días de Desarrollo", min_value=10, value=int(perfil["veg"]))
-dias_cos = st.sidebar.number_input("Días de Cosecha", min_value=5, value=int(perfil["cos"]))
+dias_veg = st.sidebar.number_input("Periodo Vegetativo (Días)", min_value=10, value=int(perfil["veg"]))
+dias_cos = st.sidebar.number_input("Ventana de Cosecha (Días)", min_value=5, value=int(perfil["cos"]))
 
 inversion_total = area_ha * rendimiento * perfil["multiplicador"] * costo_usuario
 
@@ -191,7 +183,7 @@ st.markdown(f"""
         <img src='{logo_sniim}' class='logo-item logo-sniim' alt='SNIIM'>
         <img src='{logo_fira}' class='logo-item logo-fira' alt='FIRA'>
         <img src='{logo_siap}' class='logo-item logo-siap' alt='SIAP'>
-        <span class='logo-item logo-nasa'>NASA POWER</span>
+        <span class='logo-item logo-nasa'>NASA POWER API</span>
     </div>
 """, unsafe_allow_html=True)
 st.markdown("---")
@@ -200,8 +192,8 @@ if 'df_maestro' not in st.session_state:
     st.session_state.df_maestro = None
 
 if ejecutar_btn:
-    with st.status("Analizando bases de datos espaciales y de mercado...", expanded=True) as status:
-        st.write("🛰️ Descargando histórico climático de NASA POWER...")
+    with st.status("Procesando datos en la terminal...", expanded=True) as status:
+        st.write("Conectando con satélites (NASA POWER)...")
         res_clima = extraer_clima_historico(localidad=ubicacion, anios_historia=anios_historia)
         if res_clima["status"] == "success":
             df_clima = pd.read_csv(res_clima["archivo"])
@@ -209,15 +201,16 @@ if ejecutar_btn:
         else:
             st.error(res_clima["mensaje"]); st.stop()
             
-        st.write("🧠 Sincronizando modelo de mercado local ultrarrápido...")
+        st.write("Sincronizando precios spot (SNIIM)...")
         nombre_limpio = cultivo_seleccionado.replace(" ", "_").replace("-", "").replace("__", "_")
         nombre_archivo = f"Precios_{nombre_limpio}_Puebla.csv"
         
-        # Rastreador inteligente: Busca el CSV tanto en la raíz de GitHub como en subcarpetas
-        ruta_local = os.path.join(os.path.dirname(os.path.abspath(__file__)), nombre_archivo)
-        ruta_csv = nombre_archivo if os.path.exists(nombre_archivo) else ruta_local
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        rutas_posibles = [os.path.join(base_dir, nombre_archivo), os.path.join(base_dir, "Proyecto_Agro", nombre_archivo), nombre_archivo]
         
-        if os.path.exists(ruta_csv):
+        ruta_csv = next((r for r in rutas_posibles if os.path.exists(r)), None)
+            
+        if ruta_csv:
             df_precios_raw = pd.read_csv(ruta_csv)
             df_precios = pd.DataFrame()
             df_precios['Fecha'] = pd.to_datetime(df_precios_raw.iloc[:, 0], dayfirst=True, errors='coerce')
@@ -227,40 +220,37 @@ if ejecutar_btn:
             
             def calcular_precio_base(row):
                 presentacion = str(row['Presentacion']).lower().strip()
-                precio_bruto = float(row['Precio_Caja'])
-                unidad_perfil = perfil['unidad']
+                precio = float(row['Precio_Caja'])
+                unidad = perfil['unidad']
                 nums = re.findall(r'\d+', presentacion)
-                cantidad_num = float(nums[-1]) if nums else 1.0
+                cant = float(nums[-1]) if nums else 1.0
                 
-                if unidad_perfil == 'pieza':
-                    return precio_bruto / (cantidad_num * 12.0) if 'docena' in presentacion else precio_bruto / cantidad_num
-                elif unidad_perfil == 'docena':
-                    return (precio_bruto / cantidad_num) * 12.0 if 'pieza' in presentacion or 'pza' in presentacion else precio_bruto / cantidad_num
+                if unidad == 'pieza': return precio / (cant * 12.0) if 'docena' in presentacion else precio / cant
+                elif unidad == 'docena': return (precio / cant) * 12.0 if 'pieza' in presentacion or 'pza' in presentacion else precio / cant
                 else: 
-                    if 'tonelada' in presentacion or 'ton ' in presentacion: return precio_bruto / (cantidad_num * 1000.0)
-                    elif 'kilogramo' in presentacion or 'kg' in presentacion or 'kilo' in presentacion: return precio_bruto / cantidad_num
-                    elif nums: return precio_bruto / cantidad_num
-                    return precio_bruto / 14.0
+                    if 'ton' in presentacion: return precio / (cant * 1000.0)
+                    elif 'kg' in presentacion or 'kilo' in presentacion: return precio / cant
+                    elif nums: return precio / cant
+                    return precio / 14.0
                     
             df_precios['Precio_Base'] = df_precios.apply(calcular_precio_base, axis=1).round(2)
             
-            fecha_min = df_precios['Fecha'].min()
-            fecha_max = df_clima['Fecha'].max()
+            fecha_min, fecha_max = df_precios['Fecha'].min(), df_clima['Fecha'].max()
             df_maestro = pd.merge(df_clima[(df_clima['Fecha'] >= fecha_min) & (df_clima['Fecha'] <= fecha_max)], df_precios[['Fecha', 'Precio_Base']], on='Fecha', how='left')
             df_maestro = df_maestro.sort_values('Fecha').reset_index(drop=True)
             df_maestro['Precio_Base'] = df_maestro['Precio_Base'].ffill().bfill()
             st.session_state.df_maestro = df_maestro
-            status.update(label="¡Análisis completado en tiempo récord!", state="complete", expanded=False)
+            status.update(label="Algoritmo ejecutado exitosamente.", state="complete", expanded=False)
         else:
-            st.error(f"Falta la base de datos para: {cultivo_seleccionado}. Sincronizando en segundo plano...")
-            status.update(label="Sincronización requerida", state="error", expanded=False)
+            st.error(f"Base de datos de mercado no encontrada para: {cultivo_seleccionado}.")
+            status.update(label="Error de conexión a datos", state="error", expanded=False)
             st.stop()
 
-# --- RESULTADOS (UI PREMIUM CON SVGs) ---
+# --- RESULTADOS (TRADINGVIEW STYLE) ---
 if st.session_state.df_maestro is not None:
     df_maestro = st.session_state.df_maestro.copy()
     
-    st.markdown(render_section("dashboard", "Panel de Inteligencia Estratégica"), unsafe_allow_html=True)
+    st.markdown(render_section("dashboard", "Resumen de Trading Agrícola", "Proyección financiera basada en el algoritmo predictivo."), unsafe_allow_html=True)
     
     df_maestro['Dia_Anio'] = df_maestro['Fecha'].dt.dayofyear
     perfil_anual = df_maestro.groupby('Dia_Anio').agg({'Precio_Base': 'mean', 'Temp_Max_C': 'mean', 'Temp_Min_C': 'mean', 'Precipitacion_mm': 'mean'}).reset_index()
@@ -280,52 +270,81 @@ if st.session_state.df_maestro is not None:
     best = df_pred.iloc[0]
     
     c1, c2, c3 = st.columns(3)
-    with c1: st.metric("Ventana Óptima de Siembra", best['Fecha'], f"ROI Proyectado: {best['ROI']:.1f}%")
-    with c2: st.metric("Precio Promedio Esperado", f"${best['Precio']:.2f} / {perfil['unidad']}", f"Costo FIRA: ${costo_usuario:.2f}")
-    with c3: st.metric("Alertas de Frío en Desarrollo", f"{best['Frio']} Días", "Temperaturas menores a 12°C", delta_color="inverse")
+    with c1: st.metric("Ventana de Siembra Sugerida", best['Fecha'], f"Retorno (ROI): {best['ROI']:.1f}%")
+    with c2: st.metric("Precio Objetivo (Spot)", f"$ {best['Precio']:.2f} MXN", f"Costo Operativo: $ {costo_usuario:.2f}")
+    with c3: st.metric("Riesgo Climático (Heladas)", f"{best['Frio']} Días", "Temp. < 12°C en desarrollo", delta_color="inverse")
     
     st.markdown("<br>", unsafe_allow_html=True)
     
-    st.markdown(render_section("chart", "Curva Estacional de Retorno de Inversión (ROI %)"), unsafe_allow_html=True)
-    st.caption("Esta gráfica te indica **cuándo sembrar**. El sistema evalúa tu costo de producción y busca las ventanas donde el precio de venta histórico ha sido mayor.")
+    # --- GRÁFICA 1: ÁREA DE RENTABILIDAD ---
+    st.markdown(render_section("chart", "Curva de Retorno de Inversión (Yield Curve)", "Identifica visualmente el momento exacto para entrar al mercado."), unsafe_allow_html=True)
     
     df_graf_roi = df_pred.sort_values('Dia').copy()
     df_graf_roi['Fecha_Plot'] = pd.to_datetime('2024-01-01') + pd.to_timedelta(df_graf_roi['Dia'] - 1, unit='D')
     
     fig_roi = go.Figure()
     fig_roi.add_trace(go.Scatter(
-        x=df_graf_roi['Fecha_Plot'], y=df_graf_roi['ROI'], mode='lines', name='ROI Proyectado',
-        line=dict(color='#10B981', width=3.5, shape='spline'), fill='tozeroy', fillcolor='rgba(16, 185, 129, 0.15)',
-        hovertemplate='<b>%{x|%d de %b}</b><br>ROI: %{y:.1f}%<extra></extra>'
+        x=df_graf_roi['Fecha_Plot'], y=df_graf_roi['ROI'], mode='lines', name='ROI',
+        line=dict(color='#089981', width=2, shape='spline'), fill='tozeroy', fillcolor='rgba(8, 153, 129, 0.1)',
+        hovertemplate='<b>%{x|%d %b}</b><br>ROI Estimado: %{y:.1f}%<extra></extra>'
     ))
-    fig_roi.add_hline(y=0, line_dash="dash", line_color="#EF4444", annotation_text="Punto de Quiebra (0%)", annotation_position="bottom right")
-    fig_roi.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', xaxis=dict(showgrid=False, tickformat='%b'), yaxis=dict(showgrid=True, gridcolor='#F1F5F9', zeroline=False), hovermode="x unified", margin=dict(l=0, r=0, t=20, b=10))
+    fig_roi.add_hline(y=0, line_color="#F23645", line_width=1, line_dash="dash", annotation_text="Punto de Equilibrio", annotation_position="bottom right", annotation_font_color="#F23645")
+    
+    fig_roi.update_layout(
+        font=dict(family="Inter", size=12, color="#475569"),
+        plot_bgcolor='#FFFFFF', paper_bgcolor='rgba(0,0,0,0)',
+        hovermode="x unified", margin=dict(l=0, r=0, t=10, b=10), height=350,
+        xaxis=dict(showgrid=True, gridcolor='#F1F5F9', showspikes=True, spikemode='across', spikethickness=1, spikedash='dot', spikecolor='#94A3B8', tickformat='%b'),
+        yaxis=dict(side='right', showgrid=True, gridcolor='#F1F5F9', zeroline=False, ticksuffix="%") # Eje a la derecha (TradingView style)
+    )
     st.plotly_chart(fig_roi, use_container_width=True)
 
+    # --- GRÁFICAS 2 Y 3 (LADO A LADO) ---
     col_charts1, col_charts2 = st.columns(2)
 
     with col_charts1:
-        st.markdown(render_section("bars", "Histórico de Mercado"), unsafe_allow_html=True)
-        st.caption(f"Comparativa real de precios de venta (MXN/{perfil['unidad']}) en la Central de Abastos.")
-        df_historico = df_maestro[['Fecha', 'Precio_Base']].copy()
-        df_historico['Año'] = df_historico['Fecha'].dt.year.astype(str)
-        df_historico['Dia_Anio'] = df_historico['Fecha'].dt.dayofyear
-        df_historico['Mes_Dia_Plot'] = pd.to_datetime('2024-01-01') + pd.to_timedelta(df_historico['Dia_Anio'] - 1, unit='D')
+        st.markdown(render_section("bars", "Acción del Precio Histórico", f"Media móvil suavizada a 7 días en MXN/{perfil['unidad']}."), unsafe_allow_html=True)
         
-        fig_precios = px.line(df_historico, x='Mes_Dia_Plot', y='Precio_Base', color='Año', color_discrete_sequence=['#3B82F6', '#F59E0B', '#8B5CF6', '#EC4899', '#14B8A6'], render_mode='svg')
-        fig_precios.update_traces(line=dict(width=2, shape='spline'), opacity=0.8)
-        fig_precios.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', xaxis=dict(title="", showgrid=False, tickformat='%b'), yaxis=dict(title=f"MXN/{perfil['unidad']}", showgrid=True, gridcolor='#F1F5F9'), legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1, title=None), hovermode="x unified", margin=dict(l=0, r=0, t=10, b=0))
+        df_historico = df_maestro[['Fecha', 'Precio_Base']].copy().sort_values('Fecha')
+        df_historico['Precio_Suavizado'] = df_historico['Precio_Base'].rolling(window=7, min_periods=1).mean()
+        df_historico['Año'] = df_historico['Fecha'].dt.year.astype(str)
+        df_historico['Mes_Dia_Plot'] = pd.to_datetime('2024-01-01') + pd.to_timedelta(df_historico['Fecha'].dt.dayofyear - 1, unit='D')
+        
+        paleta_pro = ['#94A3B8', '#64748B', '#3B82F6', '#2563EB', '#1E3A8A'] # Degradado sutil de años
+        
+        fig_precios = px.line(df_historico, x='Mes_Dia_Plot', y='Precio_Suavizado', color='Año', color_discrete_sequence=paleta_pro, render_mode='svg')
+        fig_precios.update_traces(line=dict(width=1.5, shape='spline'), hovertemplate='<b>%{x|%d %b}</b><br>$ %{y:.2f}<extra></extra>')
+        
+        fig_precios.update_layout(
+            font=dict(family="Inter", size=11, color="#475569"),
+            plot_bgcolor='#FFFFFF', paper_bgcolor='rgba(0,0,0,0)',
+            hovermode="x unified", margin=dict(l=0, r=0, t=10, b=10), height=350,
+            xaxis=dict(title="", showgrid=True, gridcolor='#F1F5F9', showspikes=True, spikemode='across', spikethickness=1, spikedash='dot', spikecolor='#94A3B8', tickformat='%b'),
+            yaxis=dict(title="", side='right', showgrid=True, gridcolor='#F1F5F9', tickprefix="$"), # Eje a la derecha
+            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0, title=None)
+        )
         st.plotly_chart(fig_precios, use_container_width=True)
 
     with col_charts2:
-        st.markdown(render_section("cloud", "Climatología Local"), unsafe_allow_html=True)
-        st.caption("Temperaturas promedio y volumen de precipitación a los que se enfrentará tu cultivo.")
+        st.markdown(render_section("cloud", "Indicadores Climáticos", "Temperatura (°C) y Volumen de Precipitación (mm)."), unsafe_allow_html=True)
+        
         df_clima_anual = perfil_anual.copy()
         df_clima_anual['Mes_Dia_Plot'] = pd.to_datetime('2024-01-01') + pd.to_timedelta(df_clima_anual['Dia_Anio'] - 1, unit='D')
         
         fig_clima = make_subplots(specs=[[{"secondary_y": True}]])
-        fig_clima.add_trace(go.Bar(x=df_clima_anual['Mes_Dia_Plot'], y=df_clima_anual['Precipitacion_mm'], name='Lluvia (mm)', marker_color='rgba(56, 189, 248, 0.4)', hovertemplate='Lluvia: %{y:.1f} mm<extra></extra>'), secondary_y=True)
-        fig_clima.add_trace(go.Scatter(x=df_clima_anual['Mes_Dia_Plot'], y=df_clima_anual['Temp_Max_C'], name='Máxima (°C)', line=dict(color='#F43F5E', width=2.5, shape='spline'), hovertemplate='Máx: %{y:.1f}°C<extra></extra>'), secondary_y=False)
-        fig_clima.add_trace(go.Scatter(x=df_clima_anual['Mes_Dia_Plot'], y=df_clima_anual['Temp_Min_C'], name='Mínima (°C)', line=dict(color='#3B82F6', width=2.5, shape='spline'), fill='tonexty', fillcolor='rgba(244, 63, 94, 0.05)', hovertemplate='Mín: %{y:.1f}°C<extra></extra>'), secondary_y=False)
-        fig_clima.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', xaxis=dict(showgrid=False, tickformat='%b'), yaxis=dict(title="Temperatura (°C)", showgrid=True, gridcolor='#F1F5F9'), yaxis2=dict(title="Precipitación (mm)", showgrid=False, range=[0, df_clima_anual['Precipitacion_mm'].max() * 3]), legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1), hovermode="x unified", margin=dict(l=0, r=0, t=10, b=0))
+        # Lluvia como barras de volumen (TradingView style)
+        fig_clima.add_trace(go.Bar(x=df_clima_anual['Mes_Dia_Plot'], y=df_clima_anual['Precipitacion_mm'], name='Volumen (Lluvia)', marker_color='rgba(148, 163, 184, 0.4)', hovertemplate='%{y:.1f} mm<extra></extra>'), secondary_y=False)
+        # Líneas de temperatura finas
+        fig_clima.add_trace(go.Scatter(x=df_clima_anual['Mes_Dia_Plot'], y=df_clima_anual['Temp_Max_C'], name='Temp Máx', line=dict(color='#F23645', width=1.5, shape='spline'), hovertemplate='%{y:.1f}°C<extra></extra>'), secondary_y=True)
+        fig_clima.add_trace(go.Scatter(x=df_clima_anual['Mes_Dia_Plot'], y=df_clima_anual['Temp_Min_C'], name='Temp Mín', line=dict(color='#2962FF', width=1.5, shape='spline'), hovertemplate='%{y:.1f}°C<extra></extra>'), secondary_y=True)
+        
+        fig_clima.update_layout(
+            font=dict(family="Inter", size=11, color="#475569"),
+            plot_bgcolor='#FFFFFF', paper_bgcolor='rgba(0,0,0,0)',
+            hovermode="x unified", margin=dict(l=0, r=0, t=10, b=10), height=350,
+            xaxis=dict(showgrid=True, gridcolor='#F1F5F9', showspikes=True, spikemode='across', spikethickness=1, spikedash='dot', spikecolor='#94A3B8', tickformat='%b'),
+            yaxis=dict(showgrid=False, showticklabels=False, range=[0, df_clima_anual['Precipitacion_mm'].max() * 4]), # Ocultar eje de lluvia para que parezca "volumen" al fondo
+            yaxis2=dict(side='right', showgrid=True, gridcolor='#F1F5F9', ticksuffix="°C"), # Temp a la derecha
+            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0)
+        )
         st.plotly_chart(fig_clima, use_container_width=True)
