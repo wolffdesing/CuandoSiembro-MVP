@@ -82,10 +82,8 @@ st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     
-    /* TIPOGRAFÍA GLOBAL (Estilo SaaS/TradingView) */
     html, body, [class*="css"] {{ font-family: 'Inter', sans-serif !important; background-color: #F8FAFC !important; color: #1E293B !important; }}
     
-    /* MENÚ SUPERIOR */
     .header-container {{ display: flex; justify-content: space-between; align-items: center; padding: 10px 30px; background-color: #FFFFFF; border-bottom: 1px solid #E2E8F0; margin: -3rem -3rem 1.5rem -3rem; }}
     .logo-main {{ height: 55px; object-fit: contain; }} 
     .nav-links {{ display: flex; align-items: center; gap: 24px; }}
@@ -94,7 +92,6 @@ st.markdown(f"""
     .btn-login {{ padding: 6px 18px; border: 1px solid #10B981; border-radius: 6px; color: #10B981 !important; font-weight: 600; transition: all 0.2s; }}
     .btn-login:hover {{ background-color: #10B981; color: white !important; }}
 
-    /* TARJETA HERO (MANTENIENDO EL DISEÑO ORIGINAL QUE TE GUSTA) */
     .hero-wrapper {{ position: relative; display: flex; justify-content: center; align-items: center; height: 300px; margin-bottom: 1.5rem; overflow: hidden; border-radius: 20px; background-color: #E2E8F0; }}
     .hero-bg-left {{ position: absolute; left: 0; top: 0; width: 35%; height: 100%; object-fit: cover; border-radius: 0 50% 50% 0 / 0 30% 70% 0; z-index: 1; }}
     .hero-bg-right {{ position: absolute; right: 0; top: 0; width: 35%; height: 100%; object-fit: cover; border-radius: 50% 0 0 50% / 30% 0 0 70%; z-index: 1; }}
@@ -102,38 +99,31 @@ st.markdown(f"""
     .hero-title {{ font-size: 2.3rem !important; margin-bottom: 0.5rem; line-height: 1.2; color: #064E3B !important; font-weight: 800 !important; letter-spacing: -0.5px; }}
     .hero-subtitle {{ font-size: 1.1rem; color: #475569; margin-bottom: 0; font-weight: 400; line-height: 1.5; }}
 
-    /* CONTROLES DE FORMULARIO ESTILO FINTECH */
     .stSelectbox label, .stNumberInput label {{ font-size: 0.85rem !important; font-weight: 600 !important; color: #64748B !important; text-transform: uppercase; letter-spacing: 0.5px; }}
     .stSelectbox > div > div {{ border-radius: 6px !important; border: 1px solid #CBD5E1 !important; background-color: #FFFFFF !important; box-shadow: 0 1px 2px rgba(0,0,0,0.02) !important; }}
     
-    /* BOTÓN PRINCIPAL (Mantenemos tu gradiente naranja) */
     div.stButton > button:first-child {{ background: linear-gradient(135deg, #D97706 0%, #B45309 100%) !important; color: white !important; font-family: 'Inter', sans-serif !important; font-weight: 700 !important; font-size: 1.05rem !important; padding: 0.7rem 1.5rem !important; border-radius: 10px !important; border: none !important; width: 100%; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(217, 119, 6, 0.3); }}
     div.stButton > button:first-child:hover {{ transform: translateY(-2px); box-shadow: 0 8px 25px rgba(217, 119, 6, 0.4); }}
     
-    /* LOGOS FOOTER */
     .logos-container {{ display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 35px; margin-top: 10px; padding-top: 15px; border-top: 1px solid #E2E8F0; }}
     .logo-item {{ filter: grayscale(100%); opacity: 0.4; transition: all 0.3s; object-fit: contain; }}
     .logo-item:hover {{ filter: grayscale(0%); opacity: 0.8; }}
     .logo-sniim {{ height: 18px; }} .logo-fira {{ height: 28px; }} .logo-siap {{ height: 28px; }}
     .logo-nasa {{ font-weight: 700; color: #64748B; font-size: 1rem; opacity: 0.5; }}
     
-    /* TARJETAS DE MÉTRICAS (TICKERS) */
     div[data-testid="metric-container"] {{ background-color: #FFFFFF; padding: 1.2rem; border-radius: 8px; border: 1px solid #E2E8F0; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }}
     div[data-testid="metric-container"] label {{ font-weight: 600 !important; color: #64748B !important; font-size: 0.85rem !important; text-transform: uppercase; letter-spacing: 0.5px; }}
     div[data-testid="metric-container"] div[data-testid="stMetricValue"] {{ font-size: 1.8rem !important; font-weight: 700 !important; color: #0F172A !important; letter-spacing: -0.5px; }}
     
-    /* RESPONSIVIDAD */
     @media (max-width: 768px) {{
         .header-container {{ flex-direction: column; padding: 15px; gap: 15px; margin: -3rem -1.5rem 1.5rem -1.5rem; }}
         .logo-main {{ height: 50px; }} 
         .nav-links {{ width: 100%; justify-content: space-evenly; flex-wrap: wrap; }}
-        
         .hero-wrapper {{ height: auto; padding: 30px 15px; border-radius: 12px; }}
         .hero-bg-left, .hero-bg-right {{ opacity: 0.15; width: 50%; }}
         .hero-text-card {{ max-width: 100%; padding: 1.5rem 1rem; }}
         .hero-title {{ font-size: 1.8rem !important; }}
         .hero-subtitle {{ font-size: 1rem; }}
-        
         .logos-container {{ gap: 20px; }}
     }}
     </style>
@@ -257,7 +247,7 @@ if ejecutar_btn:
 if st.session_state.df_maestro is not None:
     df_maestro = st.session_state.df_maestro.copy()
     
-    st.markdown(render_section("dashboard", "Resumen de Trading Agrícola", "Proyección financiera basada en el algoritmo predictivo."), unsafe_allow_html=True)
+    st.markdown(render_section("dashboard", "Resumen de Inteligencia Agrícola", "Proyección financiera basada en el algoritmo predictivo."), unsafe_allow_html=True)
     
     df_maestro['Dia_Anio'] = df_maestro['Fecha'].dt.dayofyear
     perfil_anual = df_maestro.groupby('Dia_Anio').agg({'Precio_Base': 'mean', 'Temp_Max_C': 'mean', 'Temp_Min_C': 'mean', 'Precipitacion_mm': 'mean'}).reset_index()
@@ -317,10 +307,13 @@ if st.session_state.df_maestro is not None:
         df_historico['Año'] = df_historico['Fecha'].dt.year.astype(str)
         df_historico['Mes_Dia_Plot'] = pd.to_datetime('2024-01-01') + pd.to_timedelta(df_historico['Fecha'].dt.dayofyear - 1, unit='D')
         
-        paleta_pro = ['#94A3B8', '#64748B', '#3B82F6', '#2563EB', '#1E3A8A']
+        # NUEVA PALETA: Colores vibrantes y contrastantes (Azul, Naranja, Verde, Morado, Rosa)
+        paleta_alto_contraste = ['#3B82F6', '#F59E0B', '#10B981', '#8B5CF6', '#F43F5E']
         
-        fig_precios = px.line(df_historico, x='Mes_Dia_Plot', y='Precio_Suavizado', color='Año', color_discrete_sequence=paleta_pro, render_mode='svg')
-        fig_precios.update_traces(line=dict(width=1.5, shape='spline'), hovertemplate='<b>%{x|%d %b}</b><br>$ %{y:.2f}<extra></extra>')
+        fig_precios = px.line(df_historico, x='Mes_Dia_Plot', y='Precio_Suavizado', color='Año', color_discrete_sequence=paleta_alto_contraste, render_mode='svg')
+        
+        # NUEVA ETIQUETA HOVER: Muestra explícitamente la palabra "Año", seguido del número y luego el precio.
+        fig_precios.update_traces(line=dict(width=2, shape='spline'), hovertemplate='Año %{data.name}: $%{y:.2f}<extra></extra>')
         
         fig_precios.update_layout(
             font=dict(family="Inter", size=11, color="#475569"),
