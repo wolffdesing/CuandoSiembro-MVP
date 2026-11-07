@@ -69,7 +69,7 @@ def get_image_base64(filename):
             return f"data:image/png;base64,{base64.b64encode(image_file.read()).decode()}"
     return ""
 
-st.set_page_config(page_title="Cuando Siembro | Terminal", page_icon="📈", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(page_title="Cuando Siembro | Inteligencia Agrícola", page_icon="🌱", layout="wide", initial_sidebar_state="expanded")
 
 logo_principal = get_image_base64("logo_principal.png") 
 logo_sniim = get_image_base64("image_ae35e8.png")
@@ -82,7 +82,7 @@ st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     
-    /* TIPOGRAFÍA GLOBAL (Estilo TradingView) */
+    /* TIPOGRAFÍA GLOBAL (Estilo SaaS/TradingView) */
     html, body, [class*="css"] {{ font-family: 'Inter', sans-serif !important; background-color: #F8FAFC !important; color: #1E293B !important; }}
     
     /* MENÚ SUPERIOR */
@@ -94,21 +94,21 @@ st.markdown(f"""
     .btn-login {{ padding: 6px 18px; border: 1px solid #10B981; border-radius: 6px; color: #10B981 !important; font-weight: 600; transition: all 0.2s; }}
     .btn-login:hover {{ background-color: #10B981; color: white !important; }}
 
-    /* TARJETA HERO */
-    .hero-wrapper {{ position: relative; display: flex; justify-content: center; align-items: center; height: 220px; margin-bottom: 2rem; overflow: hidden; border-radius: 16px; background: linear-gradient(180deg, #F1F5F9 0%, #E2E8F0 100%); border: 1px solid #CBD5E1; }}
-    .hero-bg-left {{ position: absolute; left: 0; top: 0; width: 40%; height: 100%; object-fit: cover; opacity: 0.3; mask-image: linear-gradient(to right, black, transparent); -webkit-mask-image: linear-gradient(to right, black, transparent); }}
-    .hero-bg-right {{ position: absolute; right: 0; top: 0; width: 40%; height: 100%; object-fit: cover; opacity: 0.3; mask-image: linear-gradient(to left, black, transparent); -webkit-mask-image: linear-gradient(to left, black, transparent); }}
-    .hero-text-card {{ position: relative; z-index: 2; text-align: center; }}
-    .hero-title {{ font-size: 2.2rem !important; font-weight: 700 !important; color: #0F172A !important; margin-bottom: 0.2rem; letter-spacing: -1px; }}
-    .hero-subtitle {{ font-size: 1.05rem; color: #475569; font-weight: 400; }}
+    /* TARJETA HERO (MANTENIENDO EL DISEÑO ORIGINAL QUE TE GUSTA) */
+    .hero-wrapper {{ position: relative; display: flex; justify-content: center; align-items: center; height: 300px; margin-bottom: 1.5rem; overflow: hidden; border-radius: 20px; background-color: #E2E8F0; }}
+    .hero-bg-left {{ position: absolute; left: 0; top: 0; width: 35%; height: 100%; object-fit: cover; border-radius: 0 50% 50% 0 / 0 30% 70% 0; z-index: 1; }}
+    .hero-bg-right {{ position: absolute; right: 0; top: 0; width: 35%; height: 100%; object-fit: cover; border-radius: 50% 0 0 50% / 30% 0 0 70%; z-index: 1; }}
+    .hero-text-card {{ position: relative; z-index: 2; background-color: rgba(255, 255, 255, 0.95); padding: 1.5rem 2.5rem; border-radius: 16px; max-width: 60%; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.08); backdrop-filter: blur(10px); }}
+    .hero-title {{ font-size: 2.3rem !important; margin-bottom: 0.5rem; line-height: 1.2; color: #064E3B !important; font-weight: 800 !important; letter-spacing: -0.5px; }}
+    .hero-subtitle {{ font-size: 1.1rem; color: #475569; margin-bottom: 0; font-weight: 400; line-height: 1.5; }}
 
     /* CONTROLES DE FORMULARIO ESTILO FINTECH */
     .stSelectbox label, .stNumberInput label {{ font-size: 0.85rem !important; font-weight: 600 !important; color: #64748B !important; text-transform: uppercase; letter-spacing: 0.5px; }}
     .stSelectbox > div > div {{ border-radius: 6px !important; border: 1px solid #CBD5E1 !important; background-color: #FFFFFF !important; box-shadow: 0 1px 2px rgba(0,0,0,0.02) !important; }}
     
-    /* BOTÓN PRINCIPAL */
-    div.stButton > button:first-child {{ background-color: #10B981 !important; color: white !important; font-weight: 600 !important; font-size: 1rem !important; padding: 0.6rem !important; border-radius: 6px !important; border: none !important; width: 100%; box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2); transition: all 0.2s; }}
-    div.stButton > button:first-child:hover {{ transform: translateY(-1px); box-shadow: 0 6px 8px -1px rgba(16, 185, 129, 0.3); }}
+    /* BOTÓN PRINCIPAL (Mantenemos tu gradiente naranja) */
+    div.stButton > button:first-child {{ background: linear-gradient(135deg, #D97706 0%, #B45309 100%) !important; color: white !important; font-family: 'Inter', sans-serif !important; font-weight: 700 !important; font-size: 1.05rem !important; padding: 0.7rem 1.5rem !important; border-radius: 10px !important; border: none !important; width: 100%; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(217, 119, 6, 0.3); }}
+    div.stButton > button:first-child:hover {{ transform: translateY(-2px); box-shadow: 0 8px 25px rgba(217, 119, 6, 0.4); }}
     
     /* LOGOS FOOTER */
     .logos-container {{ display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 35px; margin-top: 10px; padding-top: 15px; border-top: 1px solid #E2E8F0; }}
@@ -124,9 +124,16 @@ st.markdown(f"""
     
     /* RESPONSIVIDAD */
     @media (max-width: 768px) {{
-        .header-container {{ flex-direction: column; padding: 15px; margin: -3rem -1.5rem 1.5rem -1.5rem; }}
-        .hero-title {{ font-size: 1.6rem !important; }}
-        .hero-wrapper {{ height: auto; padding: 25px 15px; }}
+        .header-container {{ flex-direction: column; padding: 15px; gap: 15px; margin: -3rem -1.5rem 1.5rem -1.5rem; }}
+        .logo-main {{ height: 50px; }} 
+        .nav-links {{ width: 100%; justify-content: space-evenly; flex-wrap: wrap; }}
+        
+        .hero-wrapper {{ height: auto; padding: 30px 15px; border-radius: 12px; }}
+        .hero-bg-left, .hero-bg-right {{ opacity: 0.15; width: 50%; }}
+        .hero-text-card {{ max-width: 100%; padding: 1.5rem 1rem; }}
+        .hero-title {{ font-size: 1.8rem !important; }}
+        .hero-subtitle {{ font-size: 1rem; }}
+        
         .logos-container {{ gap: 20px; }}
     }}
     </style>
@@ -136,7 +143,7 @@ if logo_principal:
     st.markdown(f"""
         <div class="header-container">
             <div><img src="{logo_principal}" class="logo-main" alt="Cuando Siembro"></div>
-            <div class="nav-links"><a href="#">Documentación</a><a href="#" class="btn-login">Terminal Pro</a></div>
+            <div class="nav-links"><a href="#">Soporte</a><a href="#" class="btn-login">Iniciar Sesión</a></div>
         </div>
     """, unsafe_allow_html=True)
 
@@ -145,13 +152,13 @@ st.markdown(f"""
         {('<img src="'+img_dron+'" class="hero-bg-left">' if img_dron else '')} 
         {('<img src="'+img_agricultor+'" class="hero-bg-right">' if img_agricultor else '')}
         <div class='hero-text-card'>
-            <h1 class='hero-title'>Terminal de Inteligencia Agrícola</h1>
-            <p class='hero-subtitle'>Backtesting de rentabilidad cruzando datos de mercado (SNIIM) y clima satelital (NASA).</p>
+            <h1 class='hero-title'>¿Cuándo sembrar para obtener la mejor ganancia?</h1>
+            <p class='hero-subtitle'>Algoritmos predictivos que cruzan precios históricos y clima satelital para encontrar tu ventana de máxima rentabilidad.</p>
         </div>
     </div>
 """, unsafe_allow_html=True)
 
-col_busq1, col_busq2, col_busq3, col_busq4 = st.columns([2.5, 2, 2, 1.5])
+col_busq1, col_busq2, col_busq3, col_busq4 = st.columns([2.5, 2, 2, 2])
 with col_busq1:
     opciones_cultivos = list(PERFILES_AGRONOMICOS.keys())
     indice_defecto = opciones_cultivos.index("Tomate Saladette - Primera") if "Tomate Saladette - Primera" in opciones_cultivos else 0
@@ -163,7 +170,7 @@ with col_busq3:
     anios_historia = int(meta_mercado.split()[0])
 with col_busq4:
     st.markdown("<br>", unsafe_allow_html=True)
-    ejecutar_btn = st.button("EJECUTAR ALGORITMO")
+    ejecutar_btn = st.button("OBTENER DATOS Y CALCULAR")
 
 perfil = PERFILES_AGRONOMICOS.get(cultivo_seleccionado, PERFILES_AGRONOMICOS["DEFAULT"])
 
@@ -295,7 +302,7 @@ if st.session_state.df_maestro is not None:
         plot_bgcolor='#FFFFFF', paper_bgcolor='rgba(0,0,0,0)',
         hovermode="x unified", margin=dict(l=0, r=0, t=10, b=10), height=350,
         xaxis=dict(showgrid=True, gridcolor='#F1F5F9', showspikes=True, spikemode='across', spikethickness=1, spikedash='dot', spikecolor='#94A3B8', tickformat='%b'),
-        yaxis=dict(side='right', showgrid=True, gridcolor='#F1F5F9', zeroline=False, ticksuffix="%") # Eje a la derecha (TradingView style)
+        yaxis=dict(side='right', showgrid=True, gridcolor='#F1F5F9', zeroline=False, ticksuffix="%")
     )
     st.plotly_chart(fig_roi, use_container_width=True)
 
@@ -310,7 +317,7 @@ if st.session_state.df_maestro is not None:
         df_historico['Año'] = df_historico['Fecha'].dt.year.astype(str)
         df_historico['Mes_Dia_Plot'] = pd.to_datetime('2024-01-01') + pd.to_timedelta(df_historico['Fecha'].dt.dayofyear - 1, unit='D')
         
-        paleta_pro = ['#94A3B8', '#64748B', '#3B82F6', '#2563EB', '#1E3A8A'] # Degradado sutil de años
+        paleta_pro = ['#94A3B8', '#64748B', '#3B82F6', '#2563EB', '#1E3A8A']
         
         fig_precios = px.line(df_historico, x='Mes_Dia_Plot', y='Precio_Suavizado', color='Año', color_discrete_sequence=paleta_pro, render_mode='svg')
         fig_precios.update_traces(line=dict(width=1.5, shape='spline'), hovertemplate='<b>%{x|%d %b}</b><br>$ %{y:.2f}<extra></extra>')
@@ -320,7 +327,7 @@ if st.session_state.df_maestro is not None:
             plot_bgcolor='#FFFFFF', paper_bgcolor='rgba(0,0,0,0)',
             hovermode="x unified", margin=dict(l=0, r=0, t=10, b=10), height=350,
             xaxis=dict(title="", showgrid=True, gridcolor='#F1F5F9', showspikes=True, spikemode='across', spikethickness=1, spikedash='dot', spikecolor='#94A3B8', tickformat='%b'),
-            yaxis=dict(title="", side='right', showgrid=True, gridcolor='#F1F5F9', tickprefix="$"), # Eje a la derecha
+            yaxis=dict(title="", side='right', showgrid=True, gridcolor='#F1F5F9', tickprefix="$"),
             legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0, title=None)
         )
         st.plotly_chart(fig_precios, use_container_width=True)
@@ -332,9 +339,7 @@ if st.session_state.df_maestro is not None:
         df_clima_anual['Mes_Dia_Plot'] = pd.to_datetime('2024-01-01') + pd.to_timedelta(df_clima_anual['Dia_Anio'] - 1, unit='D')
         
         fig_clima = make_subplots(specs=[[{"secondary_y": True}]])
-        # Lluvia como barras de volumen (TradingView style)
         fig_clima.add_trace(go.Bar(x=df_clima_anual['Mes_Dia_Plot'], y=df_clima_anual['Precipitacion_mm'], name='Volumen (Lluvia)', marker_color='rgba(148, 163, 184, 0.4)', hovertemplate='%{y:.1f} mm<extra></extra>'), secondary_y=False)
-        # Líneas de temperatura finas
         fig_clima.add_trace(go.Scatter(x=df_clima_anual['Mes_Dia_Plot'], y=df_clima_anual['Temp_Max_C'], name='Temp Máx', line=dict(color='#F23645', width=1.5, shape='spline'), hovertemplate='%{y:.1f}°C<extra></extra>'), secondary_y=True)
         fig_clima.add_trace(go.Scatter(x=df_clima_anual['Mes_Dia_Plot'], y=df_clima_anual['Temp_Min_C'], name='Temp Mín', line=dict(color='#2962FF', width=1.5, shape='spline'), hovertemplate='%{y:.1f}°C<extra></extra>'), secondary_y=True)
         
@@ -343,8 +348,8 @@ if st.session_state.df_maestro is not None:
             plot_bgcolor='#FFFFFF', paper_bgcolor='rgba(0,0,0,0)',
             hovermode="x unified", margin=dict(l=0, r=0, t=10, b=10), height=350,
             xaxis=dict(showgrid=True, gridcolor='#F1F5F9', showspikes=True, spikemode='across', spikethickness=1, spikedash='dot', spikecolor='#94A3B8', tickformat='%b'),
-            yaxis=dict(showgrid=False, showticklabels=False, range=[0, df_clima_anual['Precipitacion_mm'].max() * 4]), # Ocultar eje de lluvia para que parezca "volumen" al fondo
-            yaxis2=dict(side='right', showgrid=True, gridcolor='#F1F5F9', ticksuffix="°C"), # Temp a la derecha
+            yaxis=dict(showgrid=False, showticklabels=False, range=[0, df_clima_anual['Precipitacion_mm'].max() * 4]),
+            yaxis2=dict(side='right', showgrid=True, gridcolor='#F1F5F9', ticksuffix="°C"),
             legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0)
         )
         st.plotly_chart(fig_clima, use_container_width=True)
