@@ -115,16 +115,19 @@ st.markdown(f"""
     div[data-testid="metric-container"] label {{ font-weight: 600 !important; color: #64748B !important; font-size: 0.85rem !important; text-transform: uppercase; letter-spacing: 0.5px; }}
     div[data-testid="metric-container"] div[data-testid="stMetricValue"] {{ font-size: 1.8rem !important; font-weight: 700 !important; color: #0F172A !important; letter-spacing: -0.5px; }}
     
+    /* REGLAS DE UX/UI PARA MÓVIL (COMPACTAS Y LIMPIAS) */
     @media (max-width: 768px) {{
         .header-container {{ flex-direction: column; padding: 15px; gap: 15px; margin: -3rem -1.5rem 1.5rem -1.5rem; }}
         .logo-main {{ height: 50px; }} 
         .nav-links {{ width: 100%; justify-content: space-evenly; flex-wrap: wrap; }}
-        .hero-wrapper {{ height: auto; padding: 30px 15px; border-radius: 12px; }}
+        .hero-wrapper {{ height: auto; padding: 25px 15px; border-radius: 12px; }}
         .hero-bg-left, .hero-bg-right {{ opacity: 0.15; width: 50%; }}
-        .hero-text-card {{ max-width: 100%; padding: 1.5rem 1rem; }}
-        .hero-title {{ font-size: 1.8rem !important; }}
-        .hero-subtitle {{ font-size: 1rem; }}
+        .hero-text-card {{ max-width: 100%; padding: 1rem; }}
+        .hero-title {{ font-size: 1.6rem !important; }}
+        .hero-subtitle {{ font-size: 0.95rem; }}
         .logos-container {{ gap: 20px; }}
+        div[data-testid="metric-container"] {{ padding: 1rem; }}
+        div[data-testid="metric-container"] div[data-testid="stMetricValue"] {{ font-size: 1.5rem !important; }}
     }}
     </style>
 """, unsafe_allow_html=True)
@@ -187,6 +190,8 @@ st.markdown("---")
 
 if 'df_maestro' not in st.session_state:
     st.session_state.df_maestro = None
+if 'df_precios_crudo' not in st.session_state:
+    st.session_state.df_precios_crudo = None
 
 if ejecutar_btn:
     with st.status("Procesando datos en la terminal...", expanded=True) as status:
@@ -204,7 +209,6 @@ if ejecutar_btn:
         
         base_dir = os.path.dirname(os.path.abspath(__file__))
         rutas_posibles = [os.path.join(base_dir, nombre_archivo), os.path.join(base_dir, "Proyecto_Agro", nombre_archivo), nombre_archivo]
-        
         ruta_csv = next((r for r in rutas_posibles if os.path.exists(r)), None)
             
         if ruta_csv:
@@ -232,6 +236,9 @@ if ejecutar_btn:
                     
             df_precios['Precio_Base'] = df_precios.apply(calcular_precio_base, axis=1).round(2)
             
+            # Guardamos los precios crudos (sin ffill) para la gráfica histórica y evitar líneas planas
+            st.session_state.df_precios_crudo = df_precios.copy()
+            
             fecha_min, fecha_max = df_precios['Fecha'].min(), df_clima['Fecha'].max()
             df_maestro = pd.merge(df_clima[(df_clima['Fecha'] >= fecha_min) & (df_clima['Fecha'] <= fecha_max)], df_precios[['Fecha', 'Precio_Base']], on='Fecha', how='left')
             df_maestro = df_maestro.sort_values('Fecha').reset_index(drop=True)
@@ -244,7 +251,7 @@ if ejecutar_btn:
             st.stop()
 
 # --- RESULTADOS (TRADINGVIEW STYLE) ---
-if st.session_state.df_maestro is not None:
+if st.session_state.df_maestro is not None and st.session_state.df_precios_crudo is not None:
     df_maestro = st.session_state.df_maestro.copy()
     
     st.markdown(render_section("dashboard", "Resumen de Inteligencia Agrícola", "Proyección financiera basada en el algoritmo predictivo."), unsafe_allow_html=True)
@@ -294,25 +301,27 @@ if st.session_state.df_maestro is not None:
         xaxis=dict(showgrid=True, gridcolor='#F1F5F9', showspikes=True, spikemode='across', spikethickness=1, spikedash='dot', spikecolor='#94A3B8', tickformat='%b'),
         yaxis=dict(side='right', showgrid=True, gridcolor='#F1F5F9', zeroline=False, ticksuffix="%")
     )
-    st.plotly_chart(fig_roi, use_container_width=True)
+    # config={'displayModeBar': False} mejora muchísimo el UX en celulares (quita el menú superior de Plotly)
+    st.plotly_chart(fig_roi, use_container_width=True, config={'displayModeBar': False})
 
     # --- GRÁFICAS 2 Y 3 (LADO A LADO) ---
     col_charts1, col_charts2 = st.columns(2)
 
     with col_charts1:
-        st.markdown(render_section("bars", "Acción del Precio Histórico", f"Media móvil suavizada a 7 días en MXN/{perfil['unidad']}."), unsafe_allow_html=True)
+        st.markdown(render_section("bars", "Acción del Precio Histórico", f"Media móvil en MXN/{perfil['unidad']} (Datos reales SNIIM)."), unsafe_allow_html=True)
         
-        df_historico = df_maestro[['Fecha', 'Precio_Base']].copy().sort_values('Fecha')
-        df_historico['Precio_Suavizado'] = df_historico['Precio_Base'].rolling(window=7, min_periods=1).mean()
+        # Usamos df_precios_crudo en lugar de df_maestro para EVITAR LAS LÍNEAS PLANAS rellenadas con ffill()
+        df_historico = st.session_state.df_precios_crudo[['Fecha', 'Precio_Base']].copy().sort_values('Fecha')
+        df_historico['Precio_Suavizado'] = df_historico['Precio_Base'].rolling(window=5, min_periods=1).mean()
         df_historico['Año'] = df_historico['Fecha'].dt.year.astype(str)
         df_historico['Mes_Dia_Plot'] = pd.to_datetime('2024-01-01') + pd.to_timedelta(df_historico['Fecha'].dt.dayofyear - 1, unit='D')
         
-        # NUEVA PALETA: Colores vibrantes y contrastantes (Azul, Naranja, Verde, Morado, Rosa)
+        # PALETA VIBRANTE DE ALTO CONTRASTE PARA SEPARAR AÑOS
         paleta_alto_contraste = ['#3B82F6', '#F59E0B', '#10B981', '#8B5CF6', '#F43F5E']
         
         fig_precios = px.line(df_historico, x='Mes_Dia_Plot', y='Precio_Suavizado', color='Año', color_discrete_sequence=paleta_alto_contraste, render_mode='svg')
         
-        # NUEVA ETIQUETA HOVER: Muestra explícitamente la palabra "Año", seguido del número y luego el precio.
+        # ETIQUETAS MÁS CLARAS Y DIRECTAS EN HOVER
         fig_precios.update_traces(line=dict(width=2, shape='spline'), hovertemplate='Año %{data.name}: $%{y:.2f}<extra></extra>')
         
         fig_precios.update_layout(
@@ -321,9 +330,10 @@ if st.session_state.df_maestro is not None:
             hovermode="x unified", margin=dict(l=0, r=0, t=10, b=10), height=350,
             xaxis=dict(title="", showgrid=True, gridcolor='#F1F5F9', showspikes=True, spikemode='across', spikethickness=1, spikedash='dot', spikecolor='#94A3B8', tickformat='%b'),
             yaxis=dict(title="", side='right', showgrid=True, gridcolor='#F1F5F9', tickprefix="$"),
-            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0, title=None)
+            # Leyenda abajo centrada para no estorbar en celular
+            legend=dict(orientation="h", yanchor="top", y=-0.15, xanchor="center", x=0.5, title=None)
         )
-        st.plotly_chart(fig_precios, use_container_width=True)
+        st.plotly_chart(fig_precios, use_container_width=True, config={'displayModeBar': False})
 
     with col_charts2:
         st.markdown(render_section("cloud", "Indicadores Climáticos", "Temperatura (°C) y Volumen de Precipitación (mm)."), unsafe_allow_html=True)
@@ -343,6 +353,6 @@ if st.session_state.df_maestro is not None:
             xaxis=dict(showgrid=True, gridcolor='#F1F5F9', showspikes=True, spikemode='across', spikethickness=1, spikedash='dot', spikecolor='#94A3B8', tickformat='%b'),
             yaxis=dict(showgrid=False, showticklabels=False, range=[0, df_clima_anual['Precipitacion_mm'].max() * 4]),
             yaxis2=dict(side='right', showgrid=True, gridcolor='#F1F5F9', ticksuffix="°C"),
-            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0)
+            legend=dict(orientation="h", yanchor="top", y=-0.15, xanchor="center", x=0.5)
         )
-        st.plotly_chart(fig_clima, use_container_width=True)
+        st.plotly_chart(fig_clima, use_container_width=True, config={'displayModeBar': False})
