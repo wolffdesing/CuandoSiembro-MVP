@@ -16,6 +16,8 @@ except ImportError:
     st.error("Falta el archivo 'motor_clima.py'.")
 
 # --- BASE DE CONOCIMIENTO (PERFILES AGRONÓMICOS) ---
+# Aquí puedes agregar una clave "paquete" a cada cultivo si deseas porcentajes específicos. 
+# Si no la pones, el sistema usará un estándar inteligente.
 PERFILES_AGRONOMICOS = {
     "Tomate Saladette - Primera": {"unidad": "kg", "costo_sugerido": 7.80, "etiqueta_rend": "Rendimiento (Ton/Ha)", "rend_sugerido": 80, "multiplicador": 1000, "veg": 90, "cos": 40},
     "Tomate Verde - Primera": {"unidad": "kg", "costo_sugerido": 5.50, "etiqueta_rend": "Rendimiento (Ton/Ha)", "rend_sugerido": 40, "multiplicador": 1000, "veg": 75, "cos": 30},
@@ -45,7 +47,8 @@ ICONS = {
     "dashboard": '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>',
     "chart": '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>',
     "bars": '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect width="4" height="7" x="7" y="14" rx="1"/><rect width="4" height="12" x="15" y="9" rx="1"/></svg>',
-    "cloud": '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>'
+    "cloud": '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>',
+    "tractor": '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F43F5E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 15c0 2.2 1.8 4 4 4s4-1.8 4-4M19 15c0 2.2-1.8 4-4 4s-4-1.8-4-4M11 15h4M1 11h2M7 11h14l-2-6H9l-2 6M11 5v6"/></svg>'
 }
 
 def render_section(icon_key, title, subtitle=""):
@@ -56,8 +59,12 @@ def render_section(icon_key, title, subtitle=""):
         <p style="margin: 4px 0 0 38px; font-size: 0.9rem; color: #64748B;">{subtitle}</p>
     </div>"""
 
+# Modificada para reiniciar el año si el cálculo se va al año siguiente (ej. sembrar en nov, cosechar en feb)
 def dia_a_fecha(dia_anio):
-    fecha_generica = datetime(2024, 1, 1) + timedelta(days=int(dia_anio) - 1)
+    dia_anio = int(dia_anio)
+    while dia_anio > 365:
+        dia_anio -= 365
+    fecha_generica = datetime(2024, 1, 1) + timedelta(days=dia_anio - 1)
     meses = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
     return f"{fecha_generica.day} {meses[fecha_generica.month - 1]}"
 
@@ -113,9 +120,13 @@ st.markdown(f"""
     
     div[data-testid="metric-container"] {{ background-color: #FFFFFF; padding: 1.2rem; border-radius: 8px; border: 1px solid #E2E8F0; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }}
     div[data-testid="metric-container"] label {{ font-weight: 600 !important; color: #64748B !important; font-size: 0.85rem !important; text-transform: uppercase; letter-spacing: 0.5px; }}
-    div[data-testid="metric-container"] div[data-testid="stMetricValue"] {{ font-size: 1.8rem !important; font-weight: 700 !important; color: #0F172A !important; letter-spacing: -0.5px; }}
+    div[data-testid="metric-container"] div[data-testid="stMetricValue"] {{ font-size: 1.5rem !important; font-weight: 700 !important; color: #0F172A !important; letter-spacing: -0.5px; }}
     
-    /* REGLAS DE UX/UI PARA MÓVIL (COMPACTAS Y LIMPIAS) */
+    /* Pestañas de Streamlit estilizadas */
+    .stTabs [data-baseweb="tab-list"] {{ gap: 20px; margin-bottom: 20px; }}
+    .stTabs [data-baseweb="tab"] {{ padding: 10px 15px; background-color: transparent; border-radius: 0; font-weight: 600; color: #64748B; font-size: 1rem; }}
+    .stTabs [aria-selected="true"] {{ color: #10B981 !important; border-bottom-color: #10B981 !important; }}
+
     @media (max-width: 768px) {{
         .header-container {{ flex-direction: column; padding: 15px; gap: 15px; margin: -3rem -1.5rem 1.5rem -1.5rem; }}
         .logo-main {{ height: 50px; }} 
@@ -127,7 +138,7 @@ st.markdown(f"""
         .hero-subtitle {{ font-size: 0.95rem; }}
         .logos-container {{ gap: 20px; }}
         div[data-testid="metric-container"] {{ padding: 1rem; }}
-        div[data-testid="metric-container"] div[data-testid="stMetricValue"] {{ font-size: 1.5rem !important; }}
+        div[data-testid="metric-container"] div[data-testid="stMetricValue"] {{ font-size: 1.25rem !important; }}
     }}
     </style>
 """, unsafe_allow_html=True)
@@ -235,14 +246,12 @@ if ejecutar_btn:
                     return precio / 14.0
                     
             df_precios['Precio_Base'] = df_precios.apply(calcular_precio_base, axis=1).round(2)
-            
-            # Guardamos los precios crudos (sin ffill) para la gráfica histórica y evitar líneas planas
             st.session_state.df_precios_crudo = df_precios.copy()
             
-            fecha_min, fecha_max = df_precios['Fecha'].min(), df_clima['Fecha'].max()
-            df_maestro = pd.merge(df_clima[(df_clima['Fecha'] >= fecha_min) & (df_clima['Fecha'] <= fecha_max)], df_precios[['Fecha', 'Precio_Base']], on='Fecha', how='left')
+            fecha_min = df_precios['Fecha'].min()
+            df_maestro = pd.merge(df_clima[df_clima['Fecha'] >= fecha_min], df_precios[['Fecha', 'Precio_Base']], on='Fecha', how='left')
             df_maestro = df_maestro.sort_values('Fecha').reset_index(drop=True)
-            df_maestro['Precio_Base'] = df_maestro['Precio_Base'].ffill().bfill()
+            df_maestro['Precio_Base'] = df_maestro['Precio_Base'].ffill(limit=7)
             st.session_state.df_maestro = df_maestro
             status.update(label="Algoritmo ejecutado exitosamente.", state="complete", expanded=False)
         else:
@@ -250,11 +259,9 @@ if ejecutar_btn:
             status.update(label="Error de conexión a datos", state="error", expanded=False)
             st.stop()
 
-# --- RESULTADOS (TRADINGVIEW STYLE) ---
+# --- RESULTADOS (TRADINGVIEW STYLE + TABS) ---
 if st.session_state.df_maestro is not None and st.session_state.df_precios_crudo is not None:
     df_maestro = st.session_state.df_maestro.copy()
-    
-    st.markdown(render_section("dashboard", "Resumen de Inteligencia Agrícola", "Proyección financiera basada en el algoritmo predictivo."), unsafe_allow_html=True)
     
     df_maestro['Dia_Anio'] = df_maestro['Fecha'].dt.dayofyear
     perfil_anual = df_maestro.groupby('Dia_Anio').agg({'Precio_Base': 'mean', 'Temp_Max_C': 'mean', 'Temp_Min_C': 'mean', 'Precipitacion_mm': 'mean'}).reset_index()
@@ -264,7 +271,10 @@ if st.session_state.df_maestro is not None and st.session_state.df_precios_crudo
     for dia_inicio in range(365):
         mercado_cos = perfil_extendido.iloc[dia_inicio + dias_veg : dia_inicio + dias_veg + dias_cos]
         clima_veg = perfil_extendido.iloc[dia_inicio : dia_inicio + dias_veg]
+        
         precio_esp = mercado_cos['Precio_Base'].mean()
+        if pd.isna(precio_esp): precio_esp = 0
+            
         ingreso_esp = area_ha * rendimiento * perfil["multiplicador"] * precio_esp
         roi_esp = ((ingreso_esp - inversion_total) / inversion_total) * 100 if inversion_total > 0 else 0
         riesgo_frio = len(clima_veg[clima_veg['Temp_Min_C'] < 12.0])
@@ -273,86 +283,112 @@ if st.session_state.df_maestro is not None and st.session_state.df_precios_crudo
     df_pred = pd.DataFrame(res).sort_values('ROI', ascending=False)
     best = df_pred.iloc[0]
     
-    c1, c2, c3 = st.columns(3)
-    with c1: st.metric("Ventana de Siembra Sugerida", best['Fecha'], f"Retorno (ROI): {best['ROI']:.1f}%")
-    with c2: st.metric("Precio Objetivo (Spot)", f"$ {best['Precio']:.2f} MXN", f"Costo Operativo: $ {costo_usuario:.2f}")
-    with c3: st.metric("Riesgo Climático (Heladas)", f"{best['Frio']} Días", "Temp. < 12°C en desarrollo", delta_color="inverse")
+    # Cálculos Operativos y Financieros Exactos
+    fecha_siembra = best['Fecha']
+    fecha_cosecha = dia_a_fecha(best['Dia'] + dias_veg)
     
-    st.markdown("<br>", unsafe_allow_html=True)
+    volumen_total = area_ha * rendimiento
+    unidad_texto = "Toneladas" if "Ton" in perfil["etiqueta_rend"] else "Piezas"
     
-    # --- GRÁFICA 1: ÁREA DE RENTABILIDAD ---
-    st.markdown(render_section("chart", "Curva de Retorno de Inversión (Yield Curve)", "Identifica visualmente el momento exacto para entrar al mercado."), unsafe_allow_html=True)
-    
-    df_graf_roi = df_pred.sort_values('Dia').copy()
-    df_graf_roi['Fecha_Plot'] = pd.to_datetime('2024-01-01') + pd.to_timedelta(df_graf_roi['Dia'] - 1, unit='D')
-    
-    fig_roi = go.Figure()
-    fig_roi.add_trace(go.Scatter(
-        x=df_graf_roi['Fecha_Plot'], y=df_graf_roi['ROI'], mode='lines', name='ROI',
-        line=dict(color='#089981', width=2, shape='spline'), fill='tozeroy', fillcolor='rgba(8, 153, 129, 0.1)',
-        hovertemplate='<b>%{x|%d %b}</b><br>ROI Estimado: %{y:.1f}%<extra></extra>'
-    ))
-    fig_roi.add_hline(y=0, line_color="#F23645", line_width=1, line_dash="dash", annotation_text="Punto de Equilibrio", annotation_position="bottom right", annotation_font_color="#F23645")
-    
-    fig_roi.update_layout(
-        font=dict(family="Inter", size=12, color="#475569"),
-        plot_bgcolor='#FFFFFF', paper_bgcolor='rgba(0,0,0,0)',
-        hovermode="x unified", margin=dict(l=0, r=0, t=10, b=10), height=350,
-        xaxis=dict(showgrid=True, gridcolor='#F1F5F9', showspikes=True, spikemode='across', spikethickness=1, spikedash='dot', spikecolor='#94A3B8', tickformat='%b'),
-        yaxis=dict(side='right', showgrid=True, gridcolor='#F1F5F9', zeroline=False, ticksuffix="%")
-    )
-    # config={'displayModeBar': False} mejora muchísimo el UX en celulares (quita el menú superior de Plotly)
-    st.plotly_chart(fig_roi, use_container_width=True, config={'displayModeBar': False})
+    ingreso_optimo = volumen_total * perfil["multiplicador"] * best["Precio"]
+    utilidad_neta = ingreso_optimo - inversion_total
 
-    # --- GRÁFICAS 2 Y 3 (LADO A LADO) ---
-    col_charts1, col_charts2 = st.columns(2)
+    # ==============================================================
+    # 📌 CREACIÓN DE PESTAÑAS (TABS) PARA MEJOR EXPERIENCIA DE USUARIO
+    # ==============================================================
+    tab_dashboard, tab_costos = st.tabs(["📈 Análisis de Mercado y Finanzas", "🚜 Paquete Tecnológico (Estructura de Costos)"])
 
-    with col_charts1:
-        st.markdown(render_section("bars", "Acción del Precio Histórico", f"Media móvil en MXN/{perfil['unidad']} (Datos reales SNIIM)."), unsafe_allow_html=True)
+    # ------------------ PESTAÑA 1: MERCADO Y FINANZAS ------------------
+    with tab_dashboard:
+        st.markdown(render_section("dashboard", "Resumen de Inteligencia Agrícola", "Proyección operativa y financiera."), unsafe_allow_html=True)
         
-        # Usamos df_precios_crudo en lugar de df_maestro para EVITAR LAS LÍNEAS PLANAS rellenadas con ffill()
-        df_historico = st.session_state.df_precios_crudo[['Fecha', 'Precio_Base']].copy().sort_values('Fecha')
-        df_historico['Precio_Suavizado'] = df_historico['Precio_Base'].rolling(window=5, min_periods=1).mean()
-        df_historico['Año'] = df_historico['Fecha'].dt.year.astype(str)
-        df_historico['Mes_Dia_Plot'] = pd.to_datetime('2024-01-01') + pd.to_timedelta(df_historico['Fecha'].dt.dayofyear - 1, unit='D')
+        # Tarjetas de métricas a 4 columnas
+        c1, c2, c3, c4 = st.columns(4)
+        with c1: st.metric("📅 Cronograma Óptimo", f"S: {fecha_siembra}", f"Cosecha: {fecha_cosecha}", delta_color="off")
+        with c2: st.metric("📦 Producción Total", f"{volumen_total:,.1f} {unidad_texto}", f"Área: {area_ha} Ha", delta_color="off")
+        with c3: st.metric("💸 Inversión Pura", f"$ {inversion_total:,.2f}", f"Costo: ${costo_usuario}/unidad", delta_color="off")
+        with c4: st.metric("💰 Ganancia Libre (Utilidad)", f"$ {utilidad_neta:,.2f}", f"ROI: {best['ROI']:.1f}%")
         
-        # PALETA VIBRANTE DE ALTO CONTRASTE PARA SEPARAR AÑOS
-        paleta_alto_contraste = ['#3B82F6', '#F59E0B', '#10B981', '#8B5CF6', '#F43F5E']
+        st.markdown("<br>", unsafe_allow_html=True)
         
-        fig_precios = px.line(df_historico, x='Mes_Dia_Plot', y='Precio_Suavizado', color='Año', color_discrete_sequence=paleta_alto_contraste, render_mode='svg')
+        # Gráfica Yield Curve
+        st.markdown(render_section("chart", "Curva de Retorno de Inversión (Yield Curve)", "Identifica visualmente el momento exacto para entrar al mercado."), unsafe_allow_html=True)
         
-        # ETIQUETAS MÁS CLARAS Y DIRECTAS EN HOVER
-        fig_precios.update_traces(line=dict(width=2, shape='spline'), hovertemplate='Año %{data.name}: $%{y:.2f}<extra></extra>')
+        df_graf_roi = df_pred.sort_values('Dia').copy()
+        df_graf_roi['Fecha_Plot'] = pd.to_datetime('2024-01-01') + pd.to_timedelta(df_graf_roi['Dia'] - 1, unit='D')
         
-        fig_precios.update_layout(
-            font=dict(family="Inter", size=11, color="#475569"),
-            plot_bgcolor='#FFFFFF', paper_bgcolor='rgba(0,0,0,0)',
-            hovermode="x unified", margin=dict(l=0, r=0, t=10, b=10), height=350,
-            xaxis=dict(title="", showgrid=True, gridcolor='#F1F5F9', showspikes=True, spikemode='across', spikethickness=1, spikedash='dot', spikecolor='#94A3B8', tickformat='%b'),
-            yaxis=dict(title="", side='right', showgrid=True, gridcolor='#F1F5F9', tickprefix="$"),
-            # Leyenda abajo centrada para no estorbar en celular
-            legend=dict(orientation="h", yanchor="top", y=-0.15, xanchor="center", x=0.5, title=None)
-        )
-        st.plotly_chart(fig_precios, use_container_width=True, config={'displayModeBar': False})
+        fig_roi = go.Figure()
+        fig_roi.add_trace(go.Scatter(x=df_graf_roi['Fecha_Plot'], y=df_graf_roi['ROI'], mode='lines', name='ROI', line=dict(color='#089981', width=2, shape='spline'), fill='tozeroy', fillcolor='rgba(8, 153, 129, 0.1)', hovertemplate='<b>%{x|%d %b}</b><br>ROI Estimado: %{y:.1f}%<extra></extra>'))
+        fig_roi.add_hline(y=0, line_color="#F23645", line_width=1, line_dash="dash", annotation_text="Punto de Equilibrio", annotation_position="bottom right", annotation_font_color="#F23645")
+        
+        fig_roi.update_layout(font=dict(family="Inter", size=12, color="#475569"), plot_bgcolor='#FFFFFF', paper_bgcolor='rgba(0,0,0,0)', hovermode="x unified", margin=dict(l=0, r=0, t=10, b=10), height=350, xaxis=dict(showgrid=True, gridcolor='#F1F5F9', showspikes=True, spikemode='across', spikethickness=1, spikedash='dot', spikecolor='#94A3B8', tickformat='%b'), yaxis=dict(side='right', showgrid=True, gridcolor='#F1F5F9', zeroline=False, ticksuffix="%"))
+        st.plotly_chart(fig_roi, use_container_width=True, config={'displayModeBar': False})
 
-    with col_charts2:
-        st.markdown(render_section("cloud", "Indicadores Climáticos", "Temperatura (°C) y Volumen de Precipitación (mm)."), unsafe_allow_html=True)
+        # Gráficas Inferiores
+        col_charts1, col_charts2 = st.columns(2)
+        with col_charts1:
+            st.markdown(render_section("bars", "Acción del Precio Histórico", f"Media móvil en MXN/{perfil['unidad']} (Datos reales SNIIM)."), unsafe_allow_html=True)
+            df_historico = st.session_state.df_precios_crudo[['Fecha', 'Precio_Base']].copy().sort_values('Fecha')
+            df_historico['Precio_Suavizado'] = df_historico['Precio_Base'].rolling(window=5, min_periods=1).mean()
+            df_historico['Año'] = df_historico['Fecha'].dt.year.astype(str)
+            df_historico['Mes_Dia_Plot'] = pd.to_datetime('2024-01-01') + pd.to_timedelta(df_historico['Fecha'].dt.dayofyear - 1, unit='D')
+            
+            paleta_alto_contraste = ['#3B82F6', '#F59E0B', '#10B981', '#8B5CF6', '#F43F5E']
+            fig_precios = px.line(df_historico, x='Mes_Dia_Plot', y='Precio_Suavizado', color='Año', color_discrete_sequence=paleta_alto_contraste, render_mode='svg')
+            fig_precios.update_traces(line=dict(width=2, shape='spline'), hovertemplate='Año %{data.name}: $%{y:.2f}<extra></extra>')
+            fig_precios.update_layout(font=dict(family="Inter", size=11, color="#475569"), plot_bgcolor='#FFFFFF', paper_bgcolor='rgba(0,0,0,0)', hovermode="x unified", margin=dict(l=0, r=0, t=10, b=10), height=350, xaxis=dict(title="", showgrid=True, gridcolor='#F1F5F9', showspikes=True, spikemode='across', spikethickness=1, spikedash='dot', spikecolor='#94A3B8', tickformat='%b'), yaxis=dict(title="", side='right', showgrid=True, gridcolor='#F1F5F9', tickprefix="$"), legend=dict(orientation="h", yanchor="top", y=-0.15, xanchor="center", x=0.5, title=None))
+            st.plotly_chart(fig_precios, use_container_width=True, config={'displayModeBar': False})
+
+        with col_charts2:
+            st.markdown(render_section("cloud", "Indicadores Climáticos", "Temperatura (°C) y Volumen de Precipitación (mm)."), unsafe_allow_html=True)
+            df_clima_anual = perfil_anual.copy()
+            df_clima_anual['Mes_Dia_Plot'] = pd.to_datetime('2024-01-01') + pd.to_timedelta(df_clima_anual['Dia_Anio'] - 1, unit='D')
+            
+            fig_clima = make_subplots(specs=[[{"secondary_y": True}]])
+            fig_clima.add_trace(go.Bar(x=df_clima_anual['Mes_Dia_Plot'], y=df_clima_anual['Precipitacion_mm'], name='Volumen (Lluvia)', marker_color='rgba(148, 163, 184, 0.4)', hovertemplate='%{y:.1f} mm<extra></extra>'), secondary_y=False)
+            fig_clima.add_trace(go.Scatter(x=df_clima_anual['Mes_Dia_Plot'], y=df_clima_anual['Temp_Max_C'], name='Temp Máx', line=dict(color='#F23645', width=1.5, shape='spline'), hovertemplate='%{y:.1f}°C<extra></extra>'), secondary_y=True)
+            fig_clima.add_trace(go.Scatter(x=df_clima_anual['Mes_Dia_Plot'], y=df_clima_anual['Temp_Min_C'], name='Temp Mín', line=dict(color='#2962FF', width=1.5, shape='spline'), hovertemplate='%{y:.1f}°C<extra></extra>'), secondary_y=True)
+            
+            fig_clima.update_layout(font=dict(family="Inter", size=11, color="#475569"), plot_bgcolor='#FFFFFF', paper_bgcolor='rgba(0,0,0,0)', hovermode="x unified", margin=dict(l=0, r=0, t=10, b=10), height=350, xaxis=dict(showgrid=True, gridcolor='#F1F5F9', showspikes=True, spikemode='across', spikethickness=1, spikedash='dot', spikecolor='#94A3B8', tickformat='%b'), yaxis=dict(showgrid=False, showticklabels=False, range=[0, df_clima_anual['Precipitacion_mm'].max() * 4]), yaxis2=dict(side='right', showgrid=True, gridcolor='#F1F5F9', ticksuffix="°C"), legend=dict(orientation="h", yanchor="top", y=-0.15, xanchor="center", x=0.5))
+            st.plotly_chart(fig_clima, use_container_width=True, config={'displayModeBar': False})
+
+    # ------------------ PESTAÑA 2: PAQUETE TECNOLÓGICO ------------------
+    with tab_costos:
+        st.markdown(render_section("tractor", "Estructura de Costos del Lote", f"Desglose operativo para una inversión de $ {inversion_total:,.2f} MXN."), unsafe_allow_html=True)
+        st.info("💡 **Nota Operativa:** Esta es una distribución estándar de costos agrícolas recomendada por las entidades financieras (FIRA). Los montos exactos varían según la topografía y las marcas de insumos elegidas.")
         
-        df_clima_anual = perfil_anual.copy()
-        df_clima_anual['Mes_Dia_Plot'] = pd.to_datetime('2024-01-01') + pd.to_timedelta(df_clima_anual['Dia_Anio'] - 1, unit='D')
+        # Leemos los porcentajes específicos del perfil, o usamos un estándar universal.
+        conceptos_nombres = ["Preparación del Terreno", "Semilla / Material Vegetativo", "Nutrición y Fertilizantes", "Agroquímicos (Plagas/Enfermedades)", "Labores Culturales (Jornales)", "Cosecha, Flete y Empaque", "Costos Indirectos y Servicios"]
+        porcentajes_default = perfil.get("paquete", [0.08, 0.15, 0.28, 0.14, 0.16, 0.14, 0.05])
         
-        fig_clima = make_subplots(specs=[[{"secondary_y": True}]])
-        fig_clima.add_trace(go.Bar(x=df_clima_anual['Mes_Dia_Plot'], y=df_clima_anual['Precipitacion_mm'], name='Volumen (Lluvia)', marker_color='rgba(148, 163, 184, 0.4)', hovertemplate='%{y:.1f} mm<extra></extra>'), secondary_y=False)
-        fig_clima.add_trace(go.Scatter(x=df_clima_anual['Mes_Dia_Plot'], y=df_clima_anual['Temp_Max_C'], name='Temp Máx', line=dict(color='#F23645', width=1.5, shape='spline'), hovertemplate='%{y:.1f}°C<extra></extra>'), secondary_y=True)
-        fig_clima.add_trace(go.Scatter(x=df_clima_anual['Mes_Dia_Plot'], y=df_clima_anual['Temp_Min_C'], name='Temp Mín', line=dict(color='#2962FF', width=1.5, shape='spline'), hovertemplate='%{y:.1f}°C<extra></extra>'), secondary_y=True)
+        df_costos = pd.DataFrame({
+            "Concepto Operativo": conceptos_nombres,
+            "Participación": porcentajes_default,
+            "Monto Asignado (MXN)": [p * inversion_total for p in porcentajes_default]
+        })
         
-        fig_clima.update_layout(
-            font=dict(family="Inter", size=11, color="#475569"),
-            plot_bgcolor='#FFFFFF', paper_bgcolor='rgba(0,0,0,0)',
-            hovermode="x unified", margin=dict(l=0, r=0, t=10, b=10), height=350,
-            xaxis=dict(showgrid=True, gridcolor='#F1F5F9', showspikes=True, spikemode='across', spikethickness=1, spikedash='dot', spikecolor='#94A3B8', tickformat='%b'),
-            yaxis=dict(showgrid=False, showticklabels=False, range=[0, df_clima_anual['Precipitacion_mm'].max() * 4]),
-            yaxis2=dict(side='right', showgrid=True, gridcolor='#F1F5F9', ticksuffix="°C"),
-            legend=dict(orientation="h", yanchor="top", y=-0.15, xanchor="center", x=0.5)
-        )
-        st.plotly_chart(fig_clima, use_container_width=True, config={'displayModeBar': False})
+        col_donut, col_table = st.columns([1.5, 2])
+        
+        with col_donut:
+            fig_donut = px.pie(
+                df_costos, values='Monto Asignado (MXN)', names='Concepto Operativo', hole=0.6,
+                color_discrete_sequence=['#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#F43F5E', '#14B8A6', '#64748B']
+            )
+            fig_donut.update_traces(textposition='inside', textinfo='percent', textfont_size=13, textfont_color='white')
+            fig_donut.update_layout(showlegend=False, plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', margin=dict(t=10, b=10, l=10, r=10), height=380)
+            
+            # Anotación en el centro de la dona
+            fig_donut.add_annotation(text="<b>Estructura</b><br>Financiera", x=0.5, y=0.5, font_size=16, font_color="#0F172A", showarrow=False)
+            st.plotly_chart(fig_donut, use_container_width=True, config={'displayModeBar': False})
+            
+        with col_table:
+            st.markdown("<br>", unsafe_allow_html=True)
+            # Mostramos un dataframe limpio y formateado a moneda y porcentaje
+            st.dataframe(
+                df_costos.style.format({
+                    "Participación": "{:.1%}", 
+                    "Monto Asignado (MXN)": "${:,.2f}"
+                }).background_gradient(subset=["Monto Asignado (MXN)"], cmap="Greens"), 
+                use_container_width=True, 
+                hide_index=True
+            )
