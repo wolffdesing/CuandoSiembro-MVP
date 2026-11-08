@@ -16,8 +16,6 @@ except ImportError:
     st.error("Falta el archivo 'motor_clima.py'.")
 
 # --- BASE DE CONOCIMIENTO (PERFILES AGRONÓMICOS) ---
-# Aquí puedes agregar una clave "paquete" a cada cultivo si deseas porcentajes específicos. 
-# Si no la pones, el sistema usará un estándar inteligente.
 PERFILES_AGRONOMICOS = {
     "Tomate Saladette - Primera": {"unidad": "kg", "costo_sugerido": 7.80, "etiqueta_rend": "Rendimiento (Ton/Ha)", "rend_sugerido": 80, "multiplicador": 1000, "veg": 90, "cos": 40},
     "Tomate Verde - Primera": {"unidad": "kg", "costo_sugerido": 5.50, "etiqueta_rend": "Rendimiento (Ton/Ha)", "rend_sugerido": 40, "multiplicador": 1000, "veg": 75, "cos": 30},
@@ -59,7 +57,6 @@ def render_section(icon_key, title, subtitle=""):
         <p style="margin: 4px 0 0 38px; font-size: 0.9rem; color: #64748B;">{subtitle}</p>
     </div>"""
 
-# Modificada para reiniciar el año si el cálculo se va al año siguiente (ej. sembrar en nov, cosechar en feb)
 def dia_a_fecha(dia_anio):
     dia_anio = int(dia_anio)
     while dia_anio > 365:
@@ -259,7 +256,7 @@ if ejecutar_btn:
             status.update(label="Error de conexión a datos", state="error", expanded=False)
             st.stop()
 
-# --- RESULTADOS (TRADINGVIEW STYLE + TABS) ---
+# --- RESULTADOS PRINCIPALES ---
 if st.session_state.df_maestro is not None and st.session_state.df_precios_crudo is not None:
     df_maestro = st.session_state.df_maestro.copy()
     
@@ -284,33 +281,31 @@ if st.session_state.df_maestro is not None and st.session_state.df_precios_crudo
     best = df_pred.iloc[0]
     
     # Cálculos Operativos y Financieros Exactos
-    fecha_siembra = best['Fecha']
-    fecha_cosecha = dia_a_fecha(best['Dia'] + dias_veg)
-    
     volumen_total = area_ha * rendimiento
     unidad_texto = "Toneladas" if "Ton" in perfil["etiqueta_rend"] else "Piezas"
-    
     ingreso_optimo = volumen_total * perfil["multiplicador"] * best["Precio"]
     utilidad_neta = ingreso_optimo - inversion_total
 
     # ==============================================================
-    # 📌 CREACIÓN DE PESTAÑAS (TABS) PARA MEJOR EXPERIENCIA DE USUARIO
+    # 📌 PANEL SUPERIOR DE MÉTRICAS GLOBALES (Restauradas y Mejoradas)
     # ==============================================================
-    tab_dashboard, tab_costos = st.tabs(["📈 Análisis de Mercado y Finanzas", "🚜 Paquete Tecnológico (Estructura de Costos)"])
+    st.markdown(render_section("dashboard", "Resumen de Inteligencia Agrícola", "Proyección operativa y financiera para tomar decisiones estratégicas."), unsafe_allow_html=True)
+    
+    c1, c2, c3, c4 = st.columns(4)
+    with c1: st.metric("🌱 Ventana de Siembra", best['Fecha'], f"ROI: {best['ROI']:.1f}%")
+    with c2: st.metric("💵 Precio Esperado (Spot)", f"$ {best['Precio']:.2f} MXN", f"Costo Base: $ {costo_usuario:.2f}")
+    with c3: st.metric("❄️ Riesgo de Heladas", f"{best['Frio']} Días", "Temp. < 12°C", delta_color="inverse")
+    with c4: st.metric("💰 Utilidad Neta Estimada", f"$ {utilidad_neta:,.2f}", f"Prod: {volumen_total:,.1f} {unidad_texto}", delta_color="normal")
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # ==============================================================
+    # 📌 PESTAÑAS (TABS)
+    # ==============================================================
+    tab_dashboard, tab_costos = st.tabs(["📈 Análisis de Mercado y Tendencias", "🚜 Paquete Tecnológico (Estructura de Costos)"])
 
     # ------------------ PESTAÑA 1: MERCADO Y FINANZAS ------------------
     with tab_dashboard:
-        st.markdown(render_section("dashboard", "Resumen de Inteligencia Agrícola", "Proyección operativa y financiera."), unsafe_allow_html=True)
-        
-        # Tarjetas de métricas a 4 columnas
-        c1, c2, c3, c4 = st.columns(4)
-        with c1: st.metric("📅 Cronograma Óptimo", f"S: {fecha_siembra}", f"Cosecha: {fecha_cosecha}", delta_color="off")
-        with c2: st.metric("📦 Producción Total", f"{volumen_total:,.1f} {unidad_texto}", f"Área: {area_ha} Ha", delta_color="off")
-        with c3: st.metric("💸 Inversión Pura", f"$ {inversion_total:,.2f}", f"Costo: ${costo_usuario}/unidad", delta_color="off")
-        with c4: st.metric("💰 Ganancia Libre (Utilidad)", f"$ {utilidad_neta:,.2f}", f"ROI: {best['ROI']:.1f}%")
-        
-        st.markdown("<br>", unsafe_allow_html=True)
-        
         # Gráfica Yield Curve
         st.markdown(render_section("chart", "Curva de Retorno de Inversión (Yield Curve)", "Identifica visualmente el momento exacto para entrar al mercado."), unsafe_allow_html=True)
         
@@ -354,10 +349,9 @@ if st.session_state.df_maestro is not None and st.session_state.df_precios_crudo
 
     # ------------------ PESTAÑA 2: PAQUETE TECNOLÓGICO ------------------
     with tab_costos:
-        st.markdown(render_section("tractor", "Estructura de Costos del Lote", f"Desglose operativo para una inversión de $ {inversion_total:,.2f} MXN."), unsafe_allow_html=True)
-        st.info("💡 **Nota Operativa:** Esta es una distribución estándar de costos agrícolas recomendada por las entidades financieras (FIRA). Los montos exactos varían según la topografía y las marcas de insumos elegidas.")
+        st.markdown(render_section("tractor", "Estructura de Costos del Lote", f"Desglose operativo para una inversión total de $ {inversion_total:,.2f} MXN."), unsafe_allow_html=True)
+        st.info("💡 **Nota Operativa:** Esta distribución estándar de costos agrícolas recomendada por FIRA es referencial. Los montos exactos varían según la topografía local y las marcas de insumos aplicados.")
         
-        # Leemos los porcentajes específicos del perfil, o usamos un estándar universal.
         conceptos_nombres = ["Preparación del Terreno", "Semilla / Material Vegetativo", "Nutrición y Fertilizantes", "Agroquímicos (Plagas/Enfermedades)", "Labores Culturales (Jornales)", "Cosecha, Flete y Empaque", "Costos Indirectos y Servicios"]
         porcentajes_default = perfil.get("paquete", [0.08, 0.15, 0.28, 0.14, 0.16, 0.14, 0.05])
         
@@ -377,18 +371,17 @@ if st.session_state.df_maestro is not None and st.session_state.df_precios_crudo
             fig_donut.update_traces(textposition='inside', textinfo='percent', textfont_size=13, textfont_color='white')
             fig_donut.update_layout(showlegend=False, plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', margin=dict(t=10, b=10, l=10, r=10), height=380)
             
-            # Anotación en el centro de la dona
             fig_donut.add_annotation(text="<b>Estructura</b><br>Financiera", x=0.5, y=0.5, font_size=16, font_color="#0F172A", showarrow=False)
             st.plotly_chart(fig_donut, use_container_width=True, config={'displayModeBar': False})
             
         with col_table:
             st.markdown("<br>", unsafe_allow_html=True)
-            # Mostramos un dataframe limpio y formateado a moneda y porcentaje
+            # Solución del error: Se elimina el .background_gradient para no depender de matplotlib
             st.dataframe(
                 df_costos.style.format({
                     "Participación": "{:.1%}", 
                     "Monto Asignado (MXN)": "${:,.2f}"
-                }).background_gradient(subset=["Monto Asignado (MXN)"], cmap="Greens"), 
+                }), 
                 use_container_width=True, 
                 hide_index=True
             )
