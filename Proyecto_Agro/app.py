@@ -15,29 +15,29 @@ try:
 except ImportError:
     st.error("Falta el archivo 'motor_clima.py'.")
 
-# --- BASE DE CONOCIMIENTO (PERFILES AGRONÓMICOS) ---
+# --- BASE DE CONOCIMIENTO (PERFILES AGRONÓMICOS CON EMOJIS) ---
 PERFILES_AGRONOMICOS = {
-    "Tomate Saladette - Primera": {"unidad": "kg", "costo_sugerido": 7.80, "etiqueta_rend": "Rendimiento (Ton/Ha)", "rend_sugerido": 80, "multiplicador": 1000, "veg": 90, "cos": 40},
-    "Tomate Verde - Primera": {"unidad": "kg", "costo_sugerido": 5.50, "etiqueta_rend": "Rendimiento (Ton/Ha)", "rend_sugerido": 40, "multiplicador": 1000, "veg": 75, "cos": 30},
-    "Cebolla Bola - Primera": {"unidad": "kg", "costo_sugerido": 4.50, "etiqueta_rend": "Rendimiento (Ton/Ha)", "rend_sugerido": 40, "multiplicador": 1000, "veg": 120, "cos": 20},
-    "Cebolla Morada - Primera": {"unidad": "kg", "costo_sugerido": 5.00, "etiqueta_rend": "Rendimiento (Ton/Ha)", "rend_sugerido": 35, "multiplicador": 1000, "veg": 120, "cos": 20},
-    "Chile Jalapeño - Primera": {"unidad": "kg", "costo_sugerido": 6.00, "etiqueta_rend": "Rendimiento (Ton/Ha)", "rend_sugerido": 40, "multiplicador": 1000, "veg": 90, "cos": 40},
-    "Chile Poblano - Primera": {"unidad": "kg", "costo_sugerido": 8.00, "etiqueta_rend": "Rendimiento (Ton/Ha)", "rend_sugerido": 30, "multiplicador": 1000, "veg": 100, "cos": 40},
-    "Chile Serrano - Primera": {"unidad": "kg", "costo_sugerido": 7.00, "etiqueta_rend": "Rendimiento (Ton/Ha)", "rend_sugerido": 35, "multiplicador": 1000, "veg": 90, "cos": 40},
-    "Aguacate Hass - Primera": {"unidad": "kg", "costo_sugerido": 15.00, "etiqueta_rend": "Rendimiento (Ton/Ha)", "rend_sugerido": 10, "multiplicador": 1000, "veg": 180, "cos": 60},
-    "Limón s/semilla - Primera": {"unidad": "kg", "costo_sugerido": 4.00, "etiqueta_rend": "Rendimiento (Ton/Ha)", "rend_sugerido": 15, "multiplicador": 1000, "veg": 180, "cos": 60},
-    "Papa Alpha - Primera": {"unidad": "kg", "costo_sugerido": 6.50, "etiqueta_rend": "Rendimiento (Ton/Ha)", "rend_sugerido": 35, "multiplicador": 1000, "veg": 100, "cos": 20},
-    "Lechuga Romanita grande - Primera": {"unidad": "pieza", "costo_sugerido": 3.00, "etiqueta_rend": "Rendimiento (Piezas/Ha)", "rend_sugerido": 30000, "multiplicador": 1, "veg": 60, "cos": 15},
-    "Zanahoria mediana - Primera": {"unidad": "kg", "costo_sugerido": 3.50, "etiqueta_rend": "Rendimiento (Ton/Ha)", "rend_sugerido": 30, "multiplicador": 1000, "veg": 110, "cos": 20},
-    "Brócoli - Primera": {"unidad": "kg", "costo_sugerido": 5.00, "etiqueta_rend": "Rendimiento (Ton/Ha)", "rend_sugerido": 15, "multiplicador": 1000, "veg": 80, "cos": 20},
-    "Calabacita Italiana - Primera": {"unidad": "kg", "costo_sugerido": 4.50, "etiqueta_rend": "Rendimiento (Ton/Ha)", "rend_sugerido": 25, "multiplicador": 1000, "veg": 50, "cos": 30},
-    "Pepino - Primera": {"unidad": "kg", "costo_sugerido": 5.00, "etiqueta_rend": "Rendimiento (Ton/Ha)", "rend_sugerido": 50, "multiplicador": 1000, "veg": 60, "cos": 30},
-    "Fresa - Primera": {"unidad": "kg", "costo_sugerido": 25.00, "etiqueta_rend": "Rendimiento (Ton/Ha)", "rend_sugerido": 40, "multiplicador": 1000, "veg": 120, "cos": 60},
-    "Sandía Sangría - Primera": {"unidad": "kg", "costo_sugerido": 2.50, "etiqueta_rend": "Rendimiento (Ton/Ha)", "rend_sugerido": 45, "multiplicador": 1000, "veg": 85, "cos": 20},
-    "Papaya Maradol - Primera": {"unidad": "kg", "costo_sugerido": 4.00, "etiqueta_rend": "Rendimiento (Ton/Ha)", "rend_sugerido": 60, "multiplicador": 1000, "veg": 180, "cos": 30},
-    "Melón Cantaloupe # 9 - Primera": {"unidad": "kg", "costo_sugerido": 3.50, "etiqueta_rend": "Rendimiento (Ton/Ha)", "rend_sugerido": 35, "multiplicador": 1000, "veg": 85, "cos": 20},
-    "Plátano Chiapas - Primera": {"unidad": "kg", "costo_sugerido": 3.00, "etiqueta_rend": "Rendimiento (Ton/Ha)", "rend_sugerido": 50, "multiplicador": 1000, "veg": 270, "cos": 30},
-    "DEFAULT": {"unidad": "kg", "costo_sugerido": 5.00, "etiqueta_rend": "Rendimiento (Ton/Ha)", "rend_sugerido": 20, "multiplicador": 1000, "veg": 90, "cos": 30}
+    "Tomate Saladette - Primera": {"emoji": "🍅", "unidad": "kg", "costo_sugerido": 7.80, "etiqueta_rend": "Rendimiento (Ton/Ha)", "rend_sugerido": 80, "multiplicador": 1000, "veg": 90, "cos": 40},
+    "Tomate Verde - Primera": {"emoji": "🍏", "unidad": "kg", "costo_sugerido": 5.50, "etiqueta_rend": "Rendimiento (Ton/Ha)", "rend_sugerido": 40, "multiplicador": 1000, "veg": 75, "cos": 30},
+    "Cebolla Bola - Primera": {"emoji": "🧅", "unidad": "kg", "costo_sugerido": 4.50, "etiqueta_rend": "Rendimiento (Ton/Ha)", "rend_sugerido": 40, "multiplicador": 1000, "veg": 120, "cos": 20},
+    "Cebolla Morada - Primera": {"emoji": "🧅", "unidad": "kg", "costo_sugerido": 5.00, "etiqueta_rend": "Rendimiento (Ton/Ha)", "rend_sugerido": 35, "multiplicador": 1000, "veg": 120, "cos": 20},
+    "Chile Jalapeño - Primera": {"emoji": "🌶️", "unidad": "kg", "costo_sugerido": 6.00, "etiqueta_rend": "Rendimiento (Ton/Ha)", "rend_sugerido": 40, "multiplicador": 1000, "veg": 90, "cos": 40},
+    "Chile Poblano - Primera": {"emoji": "🫑", "unidad": "kg", "costo_sugerido": 8.00, "etiqueta_rend": "Rendimiento (Ton/Ha)", "rend_sugerido": 30, "multiplicador": 1000, "veg": 100, "cos": 40},
+    "Chile Serrano - Primera": {"emoji": "🌶️", "unidad": "kg", "costo_sugerido": 7.00, "etiqueta_rend": "Rendimiento (Ton/Ha)", "rend_sugerido": 35, "multiplicador": 1000, "veg": 90, "cos": 40},
+    "Aguacate Hass - Primera": {"emoji": "🥑", "unidad": "kg", "costo_sugerido": 15.00, "etiqueta_rend": "Rendimiento (Ton/Ha)", "rend_sugerido": 10, "multiplicador": 1000, "veg": 180, "cos": 60},
+    "Limón s/semilla - Primera": {"emoji": "🍋", "unidad": "kg", "costo_sugerido": 4.00, "etiqueta_rend": "Rendimiento (Ton/Ha)", "rend_sugerido": 15, "multiplicador": 1000, "veg": 180, "cos": 60},
+    "Papa Alpha - Primera": {"emoji": "🥔", "unidad": "kg", "costo_sugerido": 6.50, "etiqueta_rend": "Rendimiento (Ton/Ha)", "rend_sugerido": 35, "multiplicador": 1000, "veg": 100, "cos": 20},
+    "Lechuga Romanita grande - Primera": {"emoji": "🥬", "unidad": "pieza", "costo_sugerido": 3.00, "etiqueta_rend": "Rendimiento (Piezas/Ha)", "rend_sugerido": 30000, "multiplicador": 1, "veg": 60, "cos": 15},
+    "Zanahoria mediana - Primera": {"emoji": "🥕", "unidad": "kg", "costo_sugerido": 3.50, "etiqueta_rend": "Rendimiento (Ton/Ha)", "rend_sugerido": 30, "multiplicador": 1000, "veg": 110, "cos": 20},
+    "Brócoli - Primera": {"emoji": "🥦", "unidad": "kg", "costo_sugerido": 5.00, "etiqueta_rend": "Rendimiento (Ton/Ha)", "rend_sugerido": 15, "multiplicador": 1000, "veg": 80, "cos": 20},
+    "Calabacita Italiana - Primera": {"emoji": "🥒", "unidad": "kg", "costo_sugerido": 4.50, "etiqueta_rend": "Rendimiento (Ton/Ha)", "rend_sugerido": 25, "multiplicador": 1000, "veg": 50, "cos": 30},
+    "Pepino - Primera": {"emoji": "🥒", "unidad": "kg", "costo_sugerido": 5.00, "etiqueta_rend": "Rendimiento (Ton/Ha)", "rend_sugerido": 50, "multiplicador": 1000, "veg": 60, "cos": 30},
+    "Fresa - Primera": {"emoji": "🍓", "unidad": "kg", "costo_sugerido": 25.00, "etiqueta_rend": "Rendimiento (Ton/Ha)", "rend_sugerido": 40, "multiplicador": 1000, "veg": 120, "cos": 60},
+    "Sandía Sangría - Primera": {"emoji": "🍉", "unidad": "kg", "costo_sugerido": 2.50, "etiqueta_rend": "Rendimiento (Ton/Ha)", "rend_sugerido": 45, "multiplicador": 1000, "veg": 85, "cos": 20},
+    "Papaya Maradol - Primera": {"emoji": "🥭", "unidad": "kg", "costo_sugerido": 4.00, "etiqueta_rend": "Rendimiento (Ton/Ha)", "rend_sugerido": 60, "multiplicador": 1000, "veg": 180, "cos": 30},
+    "Melón Cantaloupe # 9 - Primera": {"emoji": "🍈", "unidad": "kg", "costo_sugerido": 3.50, "etiqueta_rend": "Rendimiento (Ton/Ha)", "rend_sugerido": 35, "multiplicador": 1000, "veg": 85, "cos": 20},
+    "Plátano Chiapas - Primera": {"emoji": "🍌", "unidad": "kg", "costo_sugerido": 3.00, "etiqueta_rend": "Rendimiento (Ton/Ha)", "rend_sugerido": 50, "multiplicador": 1000, "veg": 270, "cos": 30},
+    "DEFAULT": {"emoji": "🌱", "unidad": "kg", "costo_sugerido": 5.00, "etiqueta_rend": "Rendimiento (Ton/Ha)", "rend_sugerido": 20, "multiplicador": 1000, "veg": 90, "cos": 30}
 }
 
 # --- LIBRERÍA DE ICONOS SVG PRO ---
@@ -46,7 +46,8 @@ ICONS = {
     "chart": '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>',
     "bars": '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect width="4" height="7" x="7" y="14" rx="1"/><rect width="4" height="12" x="15" y="9" rx="1"/></svg>',
     "cloud": '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>',
-    "tractor": '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F43F5E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 15c0 2.2 1.8 4 4 4s4-1.8 4-4M19 15c0 2.2-1.8 4-4 4s-4-1.8-4-4M11 15h4M1 11h2M7 11h14l-2-6H9l-2 6M11 5v6"/></svg>'
+    "tractor": '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F43F5E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 15c0 2.2 1.8 4 4 4s4-1.8 4-4M19 15c0 2.2-1.8 4-4 4s-4-1.8-4-4M11 15h4M1 11h2M7 11h14l-2-6H9l-2 6M11 5v6"/></svg>',
+    "calendar": '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>'
 }
 
 def render_section(icon_key, title, subtitle=""):
@@ -85,7 +86,6 @@ img_agricultor = get_image_base64("agricultor.jpg")
 st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-    
     html, body, [class*="css"] {{ font-family: 'Inter', sans-serif !important; background-color: #F8FAFC !important; color: #1E293B !important; }}
     
     .header-container {{ display: flex; justify-content: space-between; align-items: center; padding: 10px 30px; background-color: #FFFFFF; border-bottom: 1px solid #E2E8F0; margin: -3rem -3rem 1.5rem -3rem; }}
@@ -109,6 +109,8 @@ st.markdown(f"""
     div.stButton > button:first-child {{ background: linear-gradient(135deg, #D97706 0%, #B45309 100%) !important; color: white !important; font-family: 'Inter', sans-serif !important; font-weight: 700 !important; font-size: 1.05rem !important; padding: 0.7rem 1.5rem !important; border-radius: 10px !important; border: none !important; width: 100%; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(217, 119, 6, 0.3); }}
     div.stButton > button:first-child:hover {{ transform: translateY(-2px); box-shadow: 0 8px 25px rgba(217, 119, 6, 0.4); }}
     
+    .btn-scanner > button:first-child {{ background: linear-gradient(135deg, #10B981 0%, #059669 100%) !important; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3) !important; }}
+    
     .logos-container {{ display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 35px; margin-top: 10px; padding-top: 15px; border-top: 1px solid #E2E8F0; }}
     .logo-item {{ filter: grayscale(100%); opacity: 0.4; transition: all 0.3s; object-fit: contain; }}
     .logo-item:hover {{ filter: grayscale(0%); opacity: 0.8; }}
@@ -119,10 +121,13 @@ st.markdown(f"""
     div[data-testid="metric-container"] label {{ font-weight: 600 !important; color: #64748B !important; font-size: 0.85rem !important; text-transform: uppercase; letter-spacing: 0.5px; }}
     div[data-testid="metric-container"] div[data-testid="stMetricValue"] {{ font-size: 1.5rem !important; font-weight: 700 !important; color: #0F172A !important; letter-spacing: -0.5px; }}
     
-    /* Pestañas de Streamlit estilizadas */
     .stTabs [data-baseweb="tab-list"] {{ gap: 20px; margin-bottom: 20px; }}
     .stTabs [data-baseweb="tab"] {{ padding: 10px 15px; background-color: transparent; border-radius: 0; font-weight: 600; color: #64748B; font-size: 1rem; }}
     .stTabs [aria-selected="true"] {{ color: #10B981 !important; border-bottom-color: #10B981 !important; }}
+    
+    .top-crop-card {{ background-color: white; border: 1px solid #E2E8F0; border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); transition: transform 0.2s; }}
+    .top-crop-card:hover {{ transform: translateY(-5px); border-color: #10B981; }}
+    .crop-emoji {{ font-size: 3.5rem; margin-bottom: 10px; }}
 
     @media (max-width: 768px) {{
         .header-container {{ flex-direction: column; padding: 15px; gap: 15px; margin: -3rem -1.5rem 1.5rem -1.5rem; }}
@@ -233,7 +238,6 @@ if ejecutar_btn:
                 unidad = perfil['unidad']
                 nums = re.findall(r'\d+', presentacion)
                 cant = float(nums[-1]) if nums else 1.0
-                
                 if unidad == 'pieza': return precio / (cant * 12.0) if 'docena' in presentacion else precio / cant
                 elif unidad == 'docena': return (precio / cant) * 12.0 if 'pieza' in presentacion or 'pza' in presentacion else precio / cant
                 else: 
@@ -256,7 +260,7 @@ if ejecutar_btn:
             status.update(label="Error de conexión a datos", state="error", expanded=False)
             st.stop()
 
-# --- RESULTADOS PRINCIPALES ---
+# --- RESULTADOS Y PESTAÑAS PRINCIPALES ---
 if st.session_state.df_maestro is not None and st.session_state.df_precios_crudo is not None:
     df_maestro = st.session_state.df_maestro.copy()
     
@@ -280,14 +284,13 @@ if st.session_state.df_maestro is not None and st.session_state.df_precios_crudo
     df_pred = pd.DataFrame(res).sort_values('ROI', ascending=False)
     best = df_pred.iloc[0]
     
-    # Cálculos Operativos y Financieros Exactos
     volumen_total = area_ha * rendimiento
     unidad_texto = "Toneladas" if "Ton" in perfil["etiqueta_rend"] else "Piezas"
     ingreso_optimo = volumen_total * perfil["multiplicador"] * best["Precio"]
     utilidad_neta = ingreso_optimo - inversion_total
 
     # ==============================================================
-    # 📌 PANEL SUPERIOR DE MÉTRICAS GLOBALES (Restauradas y Mejoradas)
+    # 📌 PANEL SUPERIOR DE MÉTRICAS GLOBALES
     # ==============================================================
     st.markdown(render_section("dashboard", "Resumen de Inteligencia Agrícola", "Proyección operativa y financiera para tomar decisiones estratégicas."), unsafe_allow_html=True)
     
@@ -300,13 +303,12 @@ if st.session_state.df_maestro is not None and st.session_state.df_precios_crudo
     st.markdown("<br>", unsafe_allow_html=True)
 
     # ==============================================================
-    # 📌 PESTAÑAS (TABS)
+    # 📌 PESTAÑAS (TABS) ACTUALIZADAS CON CALENDARIO INTELIGENTE
     # ==============================================================
-    tab_dashboard, tab_costos = st.tabs(["📈 Análisis de Mercado y Tendencias", "🚜 Paquete Tecnológico (Estructura de Costos)"])
+    tab_dashboard, tab_costos, tab_calendario = st.tabs(["📈 Análisis de Cultivo", "🚜 Paquete Tecnológico", "📅 Calendario Inteligente"])
 
     # ------------------ PESTAÑA 1: MERCADO Y FINANZAS ------------------
     with tab_dashboard:
-        # Gráfica Yield Curve
         st.markdown(render_section("chart", "Curva de Retorno de Inversión (Yield Curve)", "Identifica visualmente el momento exacto para entrar al mercado."), unsafe_allow_html=True)
         
         df_graf_roi = df_pred.sort_values('Dia').copy()
@@ -319,7 +321,6 @@ if st.session_state.df_maestro is not None and st.session_state.df_precios_crudo
         fig_roi.update_layout(font=dict(family="Inter", size=12, color="#475569"), plot_bgcolor='#FFFFFF', paper_bgcolor='rgba(0,0,0,0)', hovermode="x unified", margin=dict(l=0, r=0, t=10, b=10), height=350, xaxis=dict(showgrid=True, gridcolor='#F1F5F9', showspikes=True, spikemode='across', spikethickness=1, spikedash='dot', spikecolor='#94A3B8', tickformat='%b'), yaxis=dict(side='right', showgrid=True, gridcolor='#F1F5F9', zeroline=False, ticksuffix="%"))
         st.plotly_chart(fig_roi, use_container_width=True, config={'displayModeBar': False})
 
-        # Gráficas Inferiores
         col_charts1, col_charts2 = st.columns(2)
         with col_charts1:
             st.markdown(render_section("bars", "Acción del Precio Histórico", f"Media móvil en MXN/{perfil['unidad']} (Datos reales SNIIM)."), unsafe_allow_html=True)
@@ -335,7 +336,7 @@ if st.session_state.df_maestro is not None and st.session_state.df_precios_crudo
             st.plotly_chart(fig_precios, use_container_width=True, config={'displayModeBar': False})
 
         with col_charts2:
-            st.markdown(render_section("cloud", "Indicadores Climáticos", "Temperatura (°C) y Volumen de Precipitación (mm)."), unsafe_allow_html=True)
+            st.markdown(render_section("cloud", "Indicadores Climáticos", "Temperatura (°C) y Lluvia (mm)."), unsafe_allow_html=True)
             df_clima_anual = perfil_anual.copy()
             df_clima_anual['Mes_Dia_Plot'] = pd.to_datetime('2024-01-01') + pd.to_timedelta(df_clima_anual['Dia_Anio'] - 1, unit='D')
             
@@ -350,38 +351,127 @@ if st.session_state.df_maestro is not None and st.session_state.df_precios_crudo
     # ------------------ PESTAÑA 2: PAQUETE TECNOLÓGICO ------------------
     with tab_costos:
         st.markdown(render_section("tractor", "Estructura de Costos del Lote", f"Desglose operativo para una inversión total de $ {inversion_total:,.2f} MXN."), unsafe_allow_html=True)
-        st.info("💡 **Nota Operativa:** Esta distribución estándar de costos agrícolas recomendada por FIRA es referencial. Los montos exactos varían según la topografía local y las marcas de insumos aplicados.")
+        st.info("💡 **Nota Operativa:** Distribución estándar referencial basada en FIRA.")
         
         conceptos_nombres = ["Preparación del Terreno", "Semilla / Material Vegetativo", "Nutrición y Fertilizantes", "Agroquímicos (Plagas/Enfermedades)", "Labores Culturales (Jornales)", "Cosecha, Flete y Empaque", "Costos Indirectos y Servicios"]
         porcentajes_default = perfil.get("paquete", [0.08, 0.15, 0.28, 0.14, 0.16, 0.14, 0.05])
-        
-        df_costos = pd.DataFrame({
-            "Concepto Operativo": conceptos_nombres,
-            "Participación": porcentajes_default,
-            "Monto Asignado (MXN)": [p * inversion_total for p in porcentajes_default]
-        })
+        df_costos = pd.DataFrame({"Concepto Operativo": conceptos_nombres, "Participación": porcentajes_default, "Monto Asignado (MXN)": [p * inversion_total for p in porcentajes_default]})
         
         col_donut, col_table = st.columns([1.5, 2])
-        
         with col_donut:
-            fig_donut = px.pie(
-                df_costos, values='Monto Asignado (MXN)', names='Concepto Operativo', hole=0.6,
-                color_discrete_sequence=['#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#F43F5E', '#14B8A6', '#64748B']
-            )
+            fig_donut = px.pie(df_costos, values='Monto Asignado (MXN)', names='Concepto Operativo', hole=0.6, color_discrete_sequence=['#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#F43F5E', '#14B8A6', '#64748B'])
             fig_donut.update_traces(textposition='inside', textinfo='percent', textfont_size=13, textfont_color='white')
             fig_donut.update_layout(showlegend=False, plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', margin=dict(t=10, b=10, l=10, r=10), height=380)
-            
             fig_donut.add_annotation(text="<b>Estructura</b><br>Financiera", x=0.5, y=0.5, font_size=16, font_color="#0F172A", showarrow=False)
             st.plotly_chart(fig_donut, use_container_width=True, config={'displayModeBar': False})
             
         with col_table:
             st.markdown("<br>", unsafe_allow_html=True)
-            # Solución del error: Se elimina el .background_gradient para no depender de matplotlib
-            st.dataframe(
-                df_costos.style.format({
-                    "Participación": "{:.1%}", 
-                    "Monto Asignado (MXN)": "${:,.2f}"
-                }), 
-                use_container_width=True, 
-                hide_index=True
-            )
+            st.dataframe(df_costos.style.format({"Participación": "{:.1%}", "Monto Asignado (MXN)": "${:,.2f}"}), use_container_width=True, hide_index=True)
+
+    # ------------------ PESTAÑA 3: CALENDARIO INTELIGENTE ------------------
+    with tab_calendario:
+        st.markdown(render_section("calendar", "Asesor Autónomo de Siembras", "Descubre qué sembrar hoy y planifica estratégicamente tu año agrícola."))
+        
+        st.markdown("<div class='btn-scanner'>", unsafe_allow_html=True)
+        btn_escaner = st.button("🚀 Escanear todo el mercado para la semana actual", use_container_width=True)
+        st.markdown("</div>", unsafe_allow_html=True)
+        
+        if btn_escaner:
+            with st.spinner("Analizando bases de datos y calculando retornos para toda la cartera de cultivos..."):
+                dia_actual = datetime.now().timetuple().tm_yday
+                fecha_actual_str = datetime.now().strftime("%d de %B")
+                
+                lista_rankings = []
+                datos_matriz = []
+                
+                base_dir = os.path.dirname(os.path.abspath(__file__))
+                
+                for c_nombre, c_perfil in PERFILES_AGRONOMICOS.items():
+                    if c_nombre == "DEFAULT": continue
+                    
+                    nom_arch = f"Precios_{c_nombre.replace(' ', '_').replace('-', '').replace('__', '_')}_Puebla.csv"
+                    ruta = next((r for r in [os.path.join(base_dir, nom_arch), os.path.join(base_dir, "Proyecto_Agro", nom_arch), nom_arch] if os.path.exists(r)), None)
+                    
+                    if ruta:
+                        df_p = pd.read_csv(ruta)
+                        df_temp = pd.DataFrame()
+                        df_temp['Fecha'] = pd.to_datetime(df_p.iloc[:, 0], dayfirst=True, errors='coerce')
+                        df_temp['Precio'] = pd.to_numeric(df_p.iloc[:, 5], errors='coerce')
+                        df_temp = df_temp.dropna(subset=['Fecha', 'Precio'])
+                        df_temp['Dia_Anio'] = df_temp['Fecha'].dt.dayofyear
+                        
+                        # Simplificación rápida para el escáner (usando precio de caja directo como proxy de tendencia)
+                        perfil_diario = df_temp.groupby('Dia_Anio')['Precio'].mean().reindex(range(1, 366)).ffill().bfill()
+                        perfil_extend = pd.concat([perfil_diario, perfil_diario]).reset_index(drop=True)
+                        
+                        # Calcular ROI simplificado para cada día del año
+                        rois_anuales = []
+                        for d in range(365):
+                            precio_futuro = perfil_extend.iloc[d + c_perfil['veg'] : d + c_perfil['veg'] + c_perfil['cos']].mean()
+                            # Asumimos Inversión estandarizada de 1 Ha para comparar justamente
+                            inv = 1.0 * c_perfil['rend_sugerido'] * c_perfil['multiplicador'] * c_perfil['costo_sugerido']
+                            # Estimación de ganancia bruta
+                            gan = 1.0 * c_perfil['rend_sugerido'] * c_perfil['multiplicador'] * (precio_futuro / 20.0) # Ajuste base proxy
+                            roi = ((gan - inv) / inv * 100) if inv > 0 else 0
+                            rois_anuales.append(roi)
+                        
+                        # Extraer el dato de HOY
+                        roi_hoy = rois_anuales[dia_actual - 1]
+                        lista_rankings.append({"Cultivo": c_nombre.split("-")[0].strip(), "Emoji": c_perfil["emoji"], "ROI": roi_hoy})
+                        
+                        # Extraer promedios por mes para el Heatmap
+                        meses_dias = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365]
+                        for m in range(12):
+                            roi_mes = np.mean(rois_anuales[meses_dias[m]:meses_dias[m+1]])
+                            datos_matriz.append({"Mes": m+1, "Cultivo": f"{c_perfil['emoji']} {c_nombre.split('-')[0].strip()}", "ROI": roi_mes})
+
+                # --- RENDERIZAR RESULTADOS DEL ESCÁNER ---
+                if len(lista_rankings) > 0:
+                    df_rank = pd.DataFrame(lista_rankings).sort_values("ROI", ascending=False).head(3)
+                    
+                    st.success(f"**Análisis completado.** Hoy es {fecha_actual_str}. Estas son las mejores opciones para iniciar la siembra esta semana:")
+                    st.markdown("<br>", unsafe_allow_html=True)
+                    
+                    r1, r2, r3 = st.columns(3)
+                    tops = df_rank.to_dict('records')
+                    
+                    if len(tops) > 0:
+                        with r1: st.markdown(f"<div class='top-crop-card'><div class='crop-emoji'>{tops[0]['Emoji']}</div><h3 style='margin:0; color:#0F172A;'>{tops[0]['Cultivo']}</h3><p style='color:#10B981; font-weight:bold; margin-top:5px;'>Opción #1 (ROI {tops[0]['ROI']:.0f}%)</p></div>", unsafe_allow_html=True)
+                    if len(tops) > 1:
+                        with r2: st.markdown(f"<div class='top-crop-card'><div class='crop-emoji'>{tops[1]['Emoji']}</div><h3 style='margin:0; color:#0F172A;'>{tops[1]['Cultivo']}</h3><p style='color:#3B82F6; font-weight:bold; margin-top:5px;'>Opción #2 (ROI {tops[1]['ROI']:.0f}%)</p></div>", unsafe_allow_html=True)
+                    if len(tops) > 2:
+                        with r3: st.markdown(f"<div class='top-crop-card'><div class='crop-emoji'>{tops[2]['Emoji']}</div><h3 style='margin:0; color:#0F172A;'>{tops[2]['Cultivo']}</h3><p style='color:#F59E0B; font-weight:bold; margin-top:5px;'>Opción #3 (ROI {tops[2]['ROI']:.0f}%)</p></div>", unsafe_allow_html=True)
+                    
+                    st.markdown("<br><hr><br>", unsafe_allow_html=True)
+                    
+                    # --- CREAR HEATMAP (MAPA DE CALOR INSTITUCIONAL) ---
+                    st.markdown("#### 🗓️ Mapa de Calor Anual de Siembras (Temporadas Altas)")
+                    st.caption("Los recuadros más verdes indican los meses donde históricamente es más rentable iniciar la siembra para cada cultivo.")
+                    
+                    df_heat = pd.DataFrame(datos_matriz)
+                    meses_labels = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
+                    
+                    # Pivotear datos para Plotly
+                    matriz_pivot = df_heat.pivot(index='Cultivo', columns='Mes', values='ROI')
+                    
+                    fig_hm = go.Figure(data=go.Heatmap(
+                        z=matriz_pivot.values,
+                        x=meses_labels,
+                        y=matriz_pivot.index,
+                        colorscale='RdYlGn',
+                        hovertemplate='<b>%{y}</b><br>Siembra en %{x}<br>ROI Esperado: %{z:.1f}%<extra></extra>',
+                        showscale=False
+                    ))
+                    
+                    fig_hm.update_layout(
+                        font=dict(family="Inter", size=12, color="#475569"),
+                        plot_bgcolor='#FFFFFF', paper_bgcolor='rgba(0,0,0,0)',
+                        margin=dict(l=10, r=10, t=10, b=10),
+                        height=100 + (len(matriz_pivot) * 35), # Altura dinámica según cantidad de cultivos
+                        xaxis=dict(side="top", showgrid=False),
+                        yaxis=dict(showgrid=False, autorange="reversed")
+                    )
+                    st.plotly_chart(fig_hm, use_container_width=True, config={'displayModeBar': False})
+                else:
+                    st.warning("No se encontraron bases de datos de precios locales para realizar el escaneo masivo.")
