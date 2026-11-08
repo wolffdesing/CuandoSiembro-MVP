@@ -12,7 +12,7 @@ jobs:
   mineria_de_datos:
     runs-on: ubuntu-24.04
     steps:
-      - name: Descargar el repositorio con credenciales
+      - name: Descargar el repositorio
         uses: actions/checkout@v4
         with:
           persist-credentials: true
@@ -26,7 +26,7 @@ jobs:
       - name: Instalar dependencias
         run: pip install pandas numpy
 
-      - name: Ejecutar actualización de datos
+      - name: Ejecutar script de datos
         run: python bot_sniim.py
 
       - name: Configurar Git y Subir Cambios
@@ -34,7 +34,7 @@ jobs:
           git config --global user.name 'SNIIM-Data-Bot'
           git config --global user.email 'bot@cuandosiembro.com'
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
-          git add *.csv
           git status
+          git add Precios_*.csv
           git diff --staged --quiet || git commit -m "🤖 Actualización automática de bases de datos MVP"
-          git push origin HEAD:main
+          git push origin HEAD
