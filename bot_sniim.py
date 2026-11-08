@@ -11,7 +11,6 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 print("🤖 Iniciando Bot Extractor SNIIM (GitHub Actions)...")
 
-# --- DICCIONARIO DEL TOP 20 MVP CON IDs REALES DEL SNIIM ---
 CULTIVOS_SNIIM = {
     "Tomate Saladette - Primera": "839",
     "Tomate Verde - Primera": "842",
@@ -35,16 +34,21 @@ CULTIVOS_SNIIM = {
     "Brócoli - Primera": "162"
 }
 
-# Configuración del navegador para GitHub Actions (Sin interfaz gráfica)
+# Configuraciones BLINDADAS para servidores sin pantalla (GitHub Actions)
 chrome_options = Options()
-chrome_options.add_argument("--headless")
+chrome_options.add_argument("--headless=new")
 chrome_options.add_argument("--no-sandbox")
 chrome_options.add_argument("--disable-dev-shm-usage")
+chrome_options.add_argument("--disable-gpu")
+chrome_options.add_argument("--window-size=1920,1080")
+chrome_options.add_argument('--ignore-certificate-errors')
 
-# Inicializar driver
-driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+try:
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+except Exception as e:
+    print(f"❌ Error al iniciar Chrome: {e}")
+    exit(0) # Salimos limpiamente para no crashear GitHub Actions
 
-# Fechas: Extraer los últimos 2 años de historia para asegurar datos suficientes
 fecha_hoy = datetime.now()
 fecha_inicio = fecha_hoy - timedelta(days=730)
 str_fecha_fin = fecha_hoy.strftime("%d/%m/%Y")
@@ -56,9 +60,8 @@ for cultivo, id_sniim in CULTIVOS_SNIIM.items():
     print(f"🔄 Extrayendo datos de: {cultivo} (ID: {id_sniim})...")
     try:
         driver.get(URL_SNIIM)
-        time.sleep(2) # Esperar a que cargue la página (.aspx es lento)
+        time.sleep(3) 
 
-        # 1. Seleccionar Fechas
         campo_fecha_ini = driver.find_element(By.ID, "txtFechaIni")
         campo_fecha_ini.clear()
         campo_fecha_ini.send_keys(str_fecha_ini)
@@ -67,27 +70,22 @@ for cultivo, id_sniim in CULTIVOS_SNIIM.items():
         campo_fecha_fin.clear()
         campo_fecha_fin.send_keys(str_fecha_fin)
 
-        # 2. Seleccionar Mercado (46 suele ser Central de Abasto de Puebla, ajusta si tu ID era otro)
         select_destino = Select(driver.find_element(By.ID, "ddlDestino"))
         try:
             select_destino.select_by_visible_text("Puebla: Central de Abasto de Puebla")
         except:
-            pass # Si no encuentra Puebla, busca el seleccionado por defecto
+            pass 
 
-        # 3. Seleccionar el Cultivo
         select_producto = Select(driver.find_element(By.ID, "ddlProducto"))
         select_producto.select_by_value(id_sniim)
         
-        # 4. Hacer clic en "Buscar"
         btn_buscar = driver.find_element(By.ID, "btnBuscar")
         btn_buscar.click()
-        time.sleep(3) # Esperar a que la tabla se genere
+        time.sleep(4) 
 
-        # 5. Extraer la tabla con Pandas
         html_pagina = driver.page_source
         tablas = pd.read_html(html_pagina)
         
-        # SNIIM genera varias tablas de estructura, la de datos suele ser la 2da o 3ra
         df_datos = None
         for tabla in tablas:
             if "Fecha" in tabla.columns or (len(tabla.columns) > 5 and "Precio" in str(tabla.values)):
@@ -95,17 +93,16 @@ for cultivo, id_sniim in CULTIVOS_SNIIM.items():
                 break
 
         if df_datos is not None and not df_datos.empty:
-            # Limpiar el nombre para guardarlo como lo espera la app
             nombre_limpio = cultivo.replace(" ", "_").replace("-", "").replace("__", "_")
             nombre_archivo = f"Precios_{nombre_limpio}_Puebla.csv"
-            
             df_datos.to_csv(nombre_archivo, index=False)
             print(f"✅ ¡Éxito! Guardado como {nombre_archivo}")
         else:
-            print(f"⚠️ No se encontraron datos tabulares para {cultivo}.")
+            print(f"⚠️ El SNIIM no devolvió datos para {cultivo} hoy.")
 
     except Exception as e:
-        print(f"❌ Error en {cultivo}: {str(e)}")
+        print(f"❌ Error al procesar {cultivo}. Saltando al siguiente... Detalles: {str(e)[:100]}")
+        continue # Si un cultivo falla, sigue con el siguiente, no te mueras.
 
 driver.quit()
-print("🎉 Extracción finalizada. El bot ha cerrado sesión.")
+print("🎉 Extracción finalizada con éxito.")
