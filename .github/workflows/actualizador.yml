@@ -20,18 +20,17 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Instalar librerias para el Bot
+      - name: Instalar dependencias necesarias
         run: |
-          pip install selenium webdriver-manager pandas lxml html5lib
+          pip install pandas numpy
 
-      - name: Ejecutar Extraccion Masiva SNIIM
+      - name: Ejecutar Actualización de Datos
         run: python bot_sniim.py
-        continue-on-error: true # Evita que todo el flujo colapse si falla un cultivo
 
       - name: Subir los CSVs actualizados a GitHub
         run: |
           git config --global user.name 'SNIIM-Data-Bot'
           git config --global user.email 'bot@cuandosiembro.com'
           git add .
-          git diff --staged --quiet || git commit -m "🤖 Actualización automática de precios SNIIM (Top 20 MVP)"
+          git diff --staged --quiet || git commit -m "🤖 Actualización automática de bases de datos MVP"
           git push
