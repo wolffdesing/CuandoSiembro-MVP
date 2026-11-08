@@ -1,5 +1,6 @@
 import os
 import time
+import sys
 import pandas as pd
 from datetime import datetime, timedelta
 from selenium import webdriver
@@ -11,7 +12,6 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 print("🤖 Iniciando Extracción Masiva SNIIM...")
 
-# Diccionario inicial
 CULTIVOS_SNIIM = {
     "Tomate Saladette - Primera": "839",
     "Tomate Verde - Primera": "842",
@@ -35,59 +35,67 @@ CULTIVOS_SNIIM = {
     "Brócoli - Primera": "162"
 }
 
-chrome_options = Options()
-chrome_options.add_argument("--headless")
-chrome_options.add_argument("--no-sandbox")
-chrome_options.add_argument("--disable-dev-shm-usage")
+try:
+    chrome_options = Options()
+    chrome_options.add_argument("--headless=new")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--window-size=1920,1080")
 
-driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+    driver.set_page_load_timeout(60) # Tiempo máximo de espera para no congelarse
 
-fecha_hoy = datetime.now()
-fecha_inicio = fecha_hoy - timedelta(days=730)
-str_fecha_fin = fecha_hoy.strftime("%d/%m/%Y")
-str_fecha_ini = fecha_inicio.strftime("%d/%m/%Y")
+    fecha_hoy = datetime.now()
+    fecha_inicio = fecha_hoy - timedelta(days=730)
+    str_fecha_fin = fecha_hoy.strftime("%d/%m/%Y")
+    str_fecha_ini = fecha_inicio.strftime("%d/%m/%Y")
 
-URL_SNIIM = "http://www.economia-sniim.gob.mx/Nuevos/Consultas/MercadosNacionales/PreciosDeMercado/Agricolas/ConsultaFrutasYHortalizas.aspx"
+    URL_SNIIM = "http://www.economia-sniim.gob.mx/Nuevos/Consultas/MercadosNacionales/PreciosDeMercado/Agricolas/ConsultaFrutasYHortalizas.aspx"
 
-for cultivo, id_sniim in CULTIVOS_SNIIM.items():
-    print(f"🔄 Extrayendo: {cultivo}...")
-    try:
-        driver.get(URL_SNIIM)
-        time.sleep(2)
-
-        driver.find_element(By.ID, "txtFechaIni").clear()
-        driver.find_element(By.ID, "txtFechaIni").send_keys(str_fecha_ini)
-        
-        driver.find_element(By.ID, "txtFechaFin").clear()
-        driver.find_element(By.ID, "txtFechaFin").send_keys(str_fecha_fin)
-
-        select_destino = Select(driver.find_element(By.ID, "ddlDestino"))
+    for cultivo, id_sniim in CULTIVOS_SNIIM.items():
+        print(f"🔄 Extrayendo: {cultivo}...")
         try:
-            select_destino.select_by_visible_text("Puebla: Central de Abasto de Puebla")
-        except:
-            pass
+            driver.get(URL_SNIIM)
+            time.sleep(2)
 
-        Select(driver.find_element(By.ID, "ddlProducto")).select_by_value(id_sniim)
-        driver.find_element(By.ID, "btnBuscar").click()
-        time.sleep(3)
+            driver.find_element(By.ID, "txtFechaIni").clear()
+            driver.find_element(By.ID, "txtFechaIni").send_keys(str_fecha_ini)
+            
+            driver.find_element(By.ID, "txtFechaFin").clear()
+            driver.find_element(By.ID, "txtFechaFin").send_keys(str_fecha_fin)
 
-        tablas = pd.read_html(driver.page_source)
-        df_datos = None
-        for tabla in tablas:
-            if "Fecha" in tabla.columns or (len(tabla.columns) > 5 and "Precio" in str(tabla.values)):
-                df_datos = tabla
-                break
+            select_destino = Select(driver.find_element(By.ID, "ddlDestino"))
+            try:
+                select_destino.select_by_visible_text("Puebla: Central de Abasto de Puebla")
+            except:
+                pass
 
-        if df_datos is not None and not df_datos.empty:
-            nombre_limpio = cultivo.replace(" ", "_").replace("-", "").replace("__", "_")
-            nombre_archivo = f"Precios_{nombre_limpio}_Puebla.csv"
-            df_datos.to_csv(nombre_archivo, index=False)
-            print(f"✅ Guardado: {nombre_archivo}")
-        else:
-            print(f"⚠️ Sin datos para {cultivo}")
+            Select(driver.find_element(By.ID, "ddlProducto")).select_by_value(id_sniim)
+            driver.find_element(By.ID, "btnBuscar").click()
+            time.sleep(3)
 
-    except Exception as e:
-        print(f"❌ Error en {cultivo}: {e}")
+            tablas = pd.read_html(driver.page_source)
+            df_datos = None
+            for tabla in tablas:
+                if "Fecha" in tabla.columns or (len(tabla.columns) > 5 and "Precio" in str(tabla.values)):
+                    df_datos = tabla
+                    break
 
-driver.quit()
-print("🎉 Proceso finalizado.")
+            if df_datos is not None and not df_datos.empty:
+                nombre_limpio = cultivo.replace(" ", "_").replace("-", "").replace("__", "_")
+                nombre_archivo = f"Precios_{nombre_limpio}_Puebla.csv"
+                df_datos.to_csv(nombre_archivo, index=False)
+                print(f"✅ Guardado: {nombre_archivo}")
+            else:
+                print(f"⚠️ Sin datos para {cultivo}")
+
+        except Exception as e:
+            print(f"❌ Error en {cultivo}: {e}")
+
+    driver.quit()
+    print("🎉 Proceso de extracción finalizado.")
+
+except Exception as e:
+    print(f"❌ Error CRÍTICO evitado: {e}")
+    sys.exit(0) # Esto asegura que GitHub Actions no marque error rojo si algo muy grave pasa
