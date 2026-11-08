@@ -2,38 +2,35 @@ name: Actualizador de Precios SNIIM
 
 on:
   schedule:
-    - cron: '0 3 * * 0'
-  workflow_dispatch:
+    - cron: '0 3 * * 0' # Se ejecuta los domingos a las 3:00 AM UTC
+  workflow_dispatch: # Activa el botón para correrlo manualmente
 
 permissions:
   contents: write
 
 jobs:
   mineria_de_datos:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - name: Descargar el repositorio
         uses: actions/checkout@v4
-        with:
-          persist-credentials: true
-          fetch-depth: 0
 
       - name: Instalar Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
-      - name: Instalar dependencias
-        run: pip install pandas numpy
+      - name: Instalar librerias para el Bot
+        run: |
+          pip install selenium webdriver-manager pandas lxml html5lib
 
-      - name: Ejecutar script de datos
+      - name: Ejecutar Extraccion Masiva SNIIM
         run: python bot_sniim.py
 
-      - name: Configurar Git y Subir Cambios
+      - name: Subir los CSVs actualizados a GitHub
         run: |
           git config --global user.name 'SNIIM-Data-Bot'
           git config --global user.email 'bot@cuandosiembro.com'
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
-          git add Precios_*.csv
-          git commit -m "🤖 Actualización automática de bases de datos MVP" || echo "No hay cambios para commitear"
-          git push origin HEAD || echo "No se pudo hacer push, pero el proceso continúa"
+          git add *.csv
+          git commit -m "🤖 Actualización automática de precios SNIIM" || echo "No hay cambios nuevos"
+          git push
