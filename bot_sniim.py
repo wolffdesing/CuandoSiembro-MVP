@@ -1,65 +1,106 @@
 import os
+import time
 import pandas as pd
-import numpy as np
 from datetime import datetime, timedelta
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import Select
+from webdriver_manager.chrome import ChromeDriverManager
 
-print("🤖 Iniciando Actualizador Rápido de Precios SNIIM (Modo Seguro)...")
+print("🤖 Iniciando Bot SNIIM Oficial (Modo Robusto)...")
 
-# Diccionario oficial del Top 20 MVP con precios base de referencia
-CULTIVOS_MVP = {
-    "Tomate Saladette - Primera": 18.0,
-    "Tomate Verde - Primera": 15.0,
-    "Cebolla Bola - Primera": 12.0,
-    "Chile Jalapeño - Primera": 22.0,
-    "Chile Poblano - Primera": 35.0,
-    "Chile Serrano - Primera": 28.0,
-    "Aguacate Hass - Primera": 55.0,
-    "Limón s/semilla - Primera": 20.0,
-    "Papa Alpha - Primera": 24.0,
-    "Zanahoria mediana - Primera": 12.0,
-    "Calabacita Italiana - Primera": 16.0,
-    "Pepino - Primera": 14.0,
-    "Lechuga Romanita grande - Primera": 12.0, 
-    "Fresa - Primera": 45.0,
-    "Papaya Maradol - Primera": 18.0,
-    "Sandía Sangría - Primera": 10.0,
-    "Melón Cantaloupe # 9 - Primera": 14.0,
-    "Plátano Chiapas - Primera": 15.0,
-    "Mango Ataulfo - Primera": 30.0,
-    "Brócoli - Primera": 18.0
+# Diccionario oficial de los 20 cultivos MVP con sus IDs reales del SNIIM
+CULTIVOS_SNIIM = {
+    "Tomate Saladette - Primera": "839",
+    "Tomate Verde - Primera": "842",
+    "Cebolla Bola - Primera": "183",
+    "Chile Jalapeño - Primera": "233",
+    "Chile Poblano - Primera": "242",
+    "Chile Serrano - Primera": "246",
+    "Aguacate Hass - Primera": "133",
+    "Limón s/semilla - Primera": "426",
+    "Papa Alpha - Primera": "740",
+    "Zanahoria mediana - Primera": "880",
+    "Calabacita Italiana - Primera": "170",
+    "Pepino - Primera": "771",
+    "Lechuga Romanita grande - Primera": "405",
+    "Fresa - Primera": "358",
+    "Papaya Maradol - Primera": "609",
+    "Sandía Sangría - Primera": "787",
+    "Melón Cantaloupe # 9 - Primera": "499",
+    "Plátano Chiapas - Primera": "663",
+    "Mango Ataulfo - Primera": "465",
+    "Brócoli - Primera": "162"
 }
 
-fecha_fin = datetime.now()
-fecha_inicio = fecha_fin - timedelta(days=365 * 3) # 3 Años de histórico
-fechas = pd.date_range(start=fecha_inicio, end=fecha_fin, freq='D')
+# Configuración de opciones para Chrome en GitHub Actions
+options = Options()
+options.add_argument("--headless=new")
+options.add_argument("--no-sandbox")
+options.add_argument("--disable-dev-shm-usage")
+options.add_argument("--disable-gpu")
+options.add_argument("--window-size=1920,1080")
 
-base_dir = os.path.dirname(os.path.abspath(__file__))
+# Inicializar driver de forma limpia
+service = Service(ChromeDriverManager().install())
+driver = webdriver.Chrome(service=service, options=options)
 
-for cultivo, precio_base in CULTIVOS_MVP.items():
-    nombre_limpio = cultivo.replace(" ", "_").replace("-", "").replace("__", "_")
-    nombre_archivo = f"Precios_{nombre_limpio}_Puebla.csv"
-    
-    # Generación matemática de alta fidelidad basada en tendencias estacionales reales
-    np.random.seed(sum(map(ord, cultivo))) # Semilla fija por cultivo para mantener consistencia
-    ruido = np.random.normal(0, precio_base * 0.12, len(fechas))
-    ciclo_estacional = np.sin(np.linspace(0, 3 * 2 * np.pi, len(fechas))) * (precio_base * 0.25)
-    tendencia_inflacion = np.linspace(0, precio_base * 0.15, len(fechas))
-    
-    precios_simulados = precio_base + ruido + ciclo_estacional + tendencia_inflacion
-    precios_simulados = np.maximum(precios_simulados, precio_base * 0.4)
-    
-    df = pd.DataFrame({
-        "Fecha": fechas.strftime('%d/%m/%Y'),
-        "Presentacion": "1 Kilogramo" if "Lechuga" not in cultivo else "1 Pieza",
-        "Origen": "Puebla",
-        "Destino": "Central de Abasto de Puebla",
-        "Precio_Min": np.round(precios_simulados * 0.9, 2),
-        "Precio_Caja": np.round(precios_simulados, 2),
-        "Precio_Max": np.round(precios_simulados * 1.1, 2)
-    })
-    
-    ruta_guardado = os.path.join(base_dir, nombre_archivo)
-    df.to_csv(ruta_guardado, index=False)
-    print(f"✅ Actualizado y verificado: {nombre_archivo}")
+fecha_hoy = datetime.now()
+fecha_inicio = fecha_hoy - timedelta(days=730) # 2 años de historia
+str_fecha_fin = fecha_hoy.strftime("%d/%m/%Y")
+str_fecha_ini = fecha_inicio.strftime("%d/%m/%Y")
 
-print("🎉 Sincronización de datos completada exitosamente sin errores de navegador.")
+URL_SNIIM = "http://www.economia-sniim.gob.mx/Nuevos/Consultas/MercadosNacionales/PreciosDeMercado/Agricolas/ConsultaFrutasYHortalizas.aspx"
+
+try:
+    for cultivo, id_sniim in CULTIVOS_SNIIM.items():
+        print(f"🔄 Consultando en línea: {cultivo}...")
+        try:
+            driver.get(URL_SNIIM)
+            time.sleep(2)
+
+            # Ingresar fechas
+            driver.find_element(By.ID, "txtFechaIni").clear()
+            driver.find_element(By.ID, "txtFechaIni").send_keys(str_fecha_ini)
+            
+            driver.find_element(By.ID, "txtFechaFin").clear()
+            driver.find_element(By.ID, "txtFechaFin").send_keys(str_fecha_fin)
+
+            # Seleccionar destino (Puebla)
+            try:
+                Select(driver.find_element(By.ID, "ddlDestino")).select_by_visible_text("Puebla: Central de Abasto de Puebla")
+            except:
+                pass
+
+            # Seleccionar producto por su ID oficial
+            Select(driver.find_element(By.ID, "ddlProducto")).select_by_value(id_sniim)
+            
+            # Click en buscar
+            driver.find_element(By.ID, "btnBuscar").click()
+            time.sleep(3)
+
+            # Extraer tabla resultante con Pandas
+            tablas = pd.read_html(driver.page_source)
+            df_datos = None
+            for tabla in tablas:
+                if "Fecha" in tabla.columns or (len(tabla.columns) > 5 and "Precio" in str(tabla.values)):
+                    df_datos = tabla
+                    break
+
+            if df_datos is not None and not df_datos.empty:
+                nombre_limpio = cultivo.replace(" ", "_").replace("-", "").replace("__", "_")
+                nombre_archivo = f"Precios_{nombre_limpio}_Puebla.csv"
+                df_datos.to_csv(nombre_archivo, index=False)
+                print(f"✅ Descargado y guardado: {nombre_archivo}")
+            else:
+                print(f"⚠️ Sin registros actuales para {cultivo}.")
+
+        except Exception as e:
+            print(f"❌ Error puntual en {cultivo}: {str(e)[:80]}")
+            continue
+
+finally:
+    driver.quit()
+    print("🎉 Proceso del bot finalizado.")
