@@ -20,12 +20,12 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Instalar dependencias del sistema y Selenium
+      - name: Instalar dependencias
         run: |
           python -m pip install --upgrade pip
-          pip install selenium webdriver-manager pandas lxml html5lib
+          pip install selenium webdriver-manager pandas numpy lxml html5lib
 
-      - name: Ejecutar Bot de Extracción SNIIM
+      - name: Ejecutar Sincronización de Datos
         run: python bot_sniim.py
 
       - name: Subir los CSVs actualizados a GitHub
@@ -33,5 +33,5 @@ jobs:
           git config --global user.name 'SNIIM-Data-Bot'
           git config --global user.email 'bot@cuandosiembro.com'
           git add .
-          git diff --staged --quiet || git commit -m "🤖 Actualización automática desde portal SNIIM"
+          git diff --staged --quiet || git commit -m "🤖 Actualización automática de bases de datos MVP"
           git push
