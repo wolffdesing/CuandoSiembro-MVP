@@ -10,28 +10,31 @@ permissions:
 
 jobs:
   mineria_de_datos:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - name: Descargar el repositorio
+      - name: Descargar el repositorio con credenciales
         uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          fetch-depth: 0
 
       - name: Instalar Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
       - name: Instalar dependencias
-        run: |
-          python -m pip install --upgrade pip
-          pip install selenium webdriver-manager pandas numpy lxml html5lib
+        run: pip install pandas numpy
 
-      - name: Ejecutar Sincronización de Datos
+      - name: Ejecutar actualización de datos
         run: python bot_sniim.py
 
-      - name: Subir los CSVs actualizados a GitHub
+      - name: Configurar Git y Subir Cambios
         run: |
           git config --global user.name 'SNIIM-Data-Bot'
           git config --global user.email 'bot@cuandosiembro.com'
-          git add .
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+          git add *.csv
+          git status
           git diff --staged --quiet || git commit -m "🤖 Actualización automática de bases de datos MVP"
-          git push
+          git push origin HEAD:main
